@@ -6,10 +6,10 @@ namespace LearningPlatformRepoPattern.Models
     {
         [Required]
         [EmailAddress]
-        public string UserEmail { get; set; } = string.Empty;
+        public string UserEmail { get; set; } 
 
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
+        public string Password { get; set; }
     }
 }

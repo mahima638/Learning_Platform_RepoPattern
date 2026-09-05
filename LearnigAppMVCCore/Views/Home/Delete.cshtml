@@ -1,0 +1,57 @@
+﻿@model LearnigAppMVCCore.Models.Subscriptions
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete Subscription</h1>
+
+<form asp-controller="Home"
+      asp-action="Delete"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <h3>Are You Sure You Want To Delete?</h3>
+
+    @if (ViewBag.DeleteMessage != null)
+    {
+        @Html.Raw(ViewBag.DeleteMessage)
+    }
+
+    <!-- Hidden Subscription ID -->
+
+    <input asp-for="sub_id"
+           type="hidden" />
+
+    <!-- Subscription Name -->
+
+    <label asp-for="sub_type">
+        Subscription Name
+    </label>
+
+    <input asp-for="sub_type"
+           class="form-control"
+           readonly />
+
+    <br />
+
+    <!-- Delete -->
+
+    <input type="submit"
+           value="Delete"
+           class="btn btn-danger" />
+
+    <br />
+    <br />
+
+    <!-- Back -->
+
+    <a asp-controller="Home"
+       asp-action="Index">
+
+        Back To List
+
+    </a>
+
+</form>

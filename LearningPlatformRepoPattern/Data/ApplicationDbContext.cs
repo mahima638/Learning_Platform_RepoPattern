@@ -15,5 +15,7 @@ namespace LearningPlatformRepoPattern.Data
         public DbSet<Mcq> Mcqs { get; set; }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<my_courses> MyCourses { get; set; }
+        public DbSet<TopicProgress> TopicProgress { get; set; }
     }
 }

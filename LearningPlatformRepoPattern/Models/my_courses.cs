@@ -1,10 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LearningPlatformRepoPattern.Models
 {
     [Table("my_courses")]
     public class my_courses
     {
+        [Key]
+        public int mcid { get; set; }
+
         [Column("sid")]
         public int Sid { get; set; }
 

@@ -10,8 +10,10 @@ namespace LearningPlatformRepoPattern.Data
         public DbSet<MasterCourse> MasterCourses { get; set; }
         public DbSet<SubCourse> SubCourses { get; set; }
 
-        public DbSet<Topic> Topics { get; set; } // Tejas-Topic/Material
+        public DbSet<Topic> Topics { get; set; } 
         public DbSet<Material> Materials { get; set; }
         public DbSet<Mcq> Mcqs { get; set; }
+
+        public DbSet<User> Users { get; set; }
     }
 }

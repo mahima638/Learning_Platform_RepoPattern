@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "User Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 bg-dark text-white min-vh-100 p-3">
+
+            <h4 class="mb-4">User Panel</h4>
+
+            <div class="nav flex-column">
+
+                <a class="nav-link text-white"
+                   asp-controller="User"
+                   asp-action="Profile">
+                    Profile
+                </a>
+
+                <a class="nav-link text-white"
+                   href="javascript:void(0);"
+                   onclick="loadAllCourses();">
+                    All Courses
+                </a>
+
+                <a class="nav-link text-white"
+                   asp-controller="User"
+                   asp-action="Cart">
+                    Cart
+                </a>
+
+                <a class="nav-link text-white" href="#">
+                    My Courses
+                </a>
+
+                <a class="nav-link text-white" href="#">
+                    Subscription
+                </a>
+                <a asp-controller="Account"
+                   asp-action="Logout">
+                    Logout
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 p-4">
+
+            <div id="userContent">
+
+                <h2>User Dashboard</h2>
+
+                <p class="text-muted">
+                    Welcome to the Learning Platform.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function loadAllCourses() {
+        document.getElementById("userContent").innerHTML =
+            '<iframe src="/User/AllCourses" style="width:100%; height:100vh; border:none;"></iframe>';
+    }
+</script>

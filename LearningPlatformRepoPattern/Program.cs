@@ -14,6 +14,8 @@ builder.Services.AddSession();
 
 
 builder.Services.AddScoped<IUserRepository, UserService>();
+builder.Services.AddScoped<ITopicRepository, TopicService>();
+builder.Services.AddScoped<IMaterialRepository, MaterialService>();
 
 var app = builder.Build();
 

@@ -2,6 +2,7 @@
 using LearningPlatformRepoPattern.Models;
 using LearningPlatformRepoPattern.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.NativeInterop;
 
 namespace LearningPlatformRepoPattern.Services
 {
@@ -25,7 +26,7 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             subCourse.CreatedAt = DateTime.Now;
-            subCourse.CreatedBy = "Admin";
+            subCourse.CreatedBy = string.IsNullOrEmpty(createdBy) ? "admin" : createdBy;
 
             _context.SubCourses.Add(subCourse);
             _context.SaveChanges();

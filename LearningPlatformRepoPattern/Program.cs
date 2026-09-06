@@ -1,8 +1,7 @@
 using LearningPlatformRepoPattern.Data;
-using LearningPlatformRepoPattern.Repositories;
-using LearningPlatformRepoPattern.Repository;
 using LearningPlatformRepoPattern.Services;
 using Microsoft.EntityFrameworkCore;
+using LearningPlatformRepoPattern.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +30,7 @@ builder.Services.AddScoped<IMasterCourseRepository, MasterCourseService>();
 // Sub Course
 builder.Services.AddScoped<ISubCourseRepository, SubCourseService>();
 
-// My Courses
+// My Courses Repository and Service
 builder.Services.AddScoped<IMyCoursesRepository, MyCoursesRepository>();
 builder.Services.AddScoped<IMyCoursesService, MyCoursesService>();
 

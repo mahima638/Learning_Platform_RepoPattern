@@ -48,7 +48,7 @@ namespace LearningPlatformRepoPattern.Data
 
             modelBuilder.Entity<SubCourse>()
                 .HasOne(x => x.MasterCourse)
-                .WithMany()
+                .WithMany(x => x.SubCourses)
                 .HasForeignKey(x => x.MasterCourseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -58,10 +58,10 @@ namespace LearningPlatformRepoPattern.Data
             // ==========================================
 
             modelBuilder.Entity<Topic>()
-                .HasOne(x => x.MasterCourse)
-                .WithMany()
-                .HasForeignKey(x => x.MasterCourseId)
-                .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(x => x.MasterCourse)
+            .WithMany()
+            .HasForeignKey(x => x.MasterCourseId)
+            .OnDelete(DeleteBehavior.Restrict);
 
 
             // ==========================================
@@ -69,10 +69,10 @@ namespace LearningPlatformRepoPattern.Data
             // ==========================================
 
             modelBuilder.Entity<Topic>()
-                .HasOne(x => x.SubCourse)
-                .WithMany()
-                .HasForeignKey(x => x.SubCourseId)
-                .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(x => x.SubCourse)
+            .WithMany()
+            .HasForeignKey(x => x.SubCourseId)
+            .OnDelete(DeleteBehavior.Restrict);
 
 
             // ==========================================
@@ -102,10 +102,10 @@ namespace LearningPlatformRepoPattern.Data
             // ==========================================
 
             modelBuilder.Entity<Material>()
-                .HasOne(x => x.Topic)
-                .WithMany(x => x.Materials)
-                .HasForeignKey(x => x.TopicId)
-                .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(x => x.Topic)
+            .WithMany(x => x.Materials)
+            .HasForeignKey(x => x.TopicId)
+            .OnDelete(DeleteBehavior.Restrict);
 
 
             // ==========================================

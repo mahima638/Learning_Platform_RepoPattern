@@ -4,6 +4,7 @@ using LearningPlatformRepoPattern.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningPlatformRepoPattern.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260906121535_FixCourseRelationships")]
+    partial class FixCourseRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace LearningPlatformRepoPattern.Migrations
                     b.Property<string>("CourseName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("CourseName");
+                        .HasColumnName("mname");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
@@ -174,9 +177,6 @@ namespace LearningPlatformRepoPattern.Migrations
                         .HasColumnType("int")
                         .HasColumnName("mid");
 
-                    b.Property<int?>("MasterCourseId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -185,69 +185,13 @@ namespace LearningPlatformRepoPattern.Migrations
                     b.Property<string>("SubCourseName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("SubCourseName");
+                        .HasColumnName("sname");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MasterCourseId");
 
-                    b.HasIndex("MasterCourseId1");
-
                     b.ToTable("sub_course");
-                });
-
-            modelBuilder.Entity("LearningPlatformRepoPattern.Models.SubscriptionSubCourse", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<int>("sid")
-                        .HasColumnType("int");
-
-                    b.Property<int>("sub_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("sid");
-
-                    b.HasIndex("sub_id");
-
-                    b.ToTable("SubscriptionSubCourses");
-                });
-
-            modelBuilder.Entity("LearningPlatformRepoPattern.Models.Subscriptions", b =>
-                {
-                    b.Property<int>("sub_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("sub_id"));
-
-                    b.Property<int>("mid")
-                        .HasColumnType("int");
-
-                    b.Property<string>("subStatus")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("subThumbnail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("sub_amount")
-                        .HasColumnType("float");
-
-                    b.Property<string>("sub_type")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("sub_id");
-
-                    b.HasIndex("mid");
-
-                    b.ToTable("Subscriptions");
                 });
 
             modelBuilder.Entity("LearningPlatformRepoPattern.Models.Topic", b =>
@@ -425,7 +369,7 @@ namespace LearningPlatformRepoPattern.Migrations
             modelBuilder.Entity("LearningPlatformRepoPattern.Models.SubCourse", b =>
                 {
                     b.HasOne("LearningPlatformRepoPattern.Models.MasterCourse", "MasterCourse")
-                        .WithMany()
+                        .WithMany("SubCourses")
                         .HasForeignKey("MasterCourseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -475,11 +419,6 @@ namespace LearningPlatformRepoPattern.Migrations
             modelBuilder.Entity("LearningPlatformRepoPattern.Models.Material", b =>
                 {
                     b.Navigation("Mcqs");
-                });
-
-            modelBuilder.Entity("LearningPlatformRepoPattern.Models.Subscriptions", b =>
-                {
-                    b.Navigation("SubscriptionSubCourses");
                 });
 
             modelBuilder.Entity("LearningPlatformRepoPattern.Models.Topic", b =>

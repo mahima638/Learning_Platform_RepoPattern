@@ -1,45 +1,38 @@
 ﻿using LearningPlatformRepoPattern.Models;
 using LearningPlatformRepoPattern.Repository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace LearningPlatformRepoPattern.Controllers
 {
-    public class SubCourseController : Controller
+    public class MasterCourseController : Controller
     {
-        private readonly ISubCourseRepository _service;
-        private readonly IMasterCourseRepository _masterCourseService;
+        private readonly IMasterCourseRepository _service;
 
-        public SubCourseController(ISubCourseRepository service, IMasterCourseRepository masterCourseService)
+        public MasterCourseController(IMasterCourseRepository service)
         {
             _service = service;
-            _masterCourseService = masterCourseService;
         }
+
         public IActionResult Index()
         {
-            var subCourses = _service.GetAll();
-
-            ViewBag.MasterCourseList = new SelectList(
-                _masterCourseService.GetActiveCourses(),
-                "Id",
-                "CourseName"
-            );
-            return View(subCourses);
+            var courses = _service.GetAll();
+            return View(courses);
         }
 
         [HttpPost]
-        public IActionResult Add(SubCourse model)
+        public IActionResult Add(MasterCourse model, IFormFile thumbnail)
         {
             string username = HttpContext.Session.GetString("DisplayName") ?? "System";
-            string message = _service.Add(model, username);
+            string message = _service.Add(model, thumbnail, username);
             TempData["Message"] = message;
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public IActionResult Edit(SubCourse model)
+        public IActionResult Edit(MasterCourse model, IFormFile thumbnail)
         {
-            string message = _service.Update(model);
+            string message = _service.Update(model, thumbnail);
             TempData["Message"] = message;
             return RedirectToAction("Index");
         }

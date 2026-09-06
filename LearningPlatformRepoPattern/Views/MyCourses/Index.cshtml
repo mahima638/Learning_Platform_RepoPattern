@@ -1,0 +1,23 @@
+﻿@model List<LearningPlatformRepoPattern.Models.MyCourseViewModel>
+
+@{
+    ViewData["Title"] = "My Courses";
+}
+
+<h1>My Courses</h1>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No courses found.</p>
+}
+else
+{
+    foreach (var course in Model)
+    {
+        <div>
+            <h3>@course.Sname</h3>
+            <p>@course.Mname</p>
+            <p>Amount: @course.Samount</p>
+        </div>
+    }
+}

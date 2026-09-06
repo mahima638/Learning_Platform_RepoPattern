@@ -20,25 +20,33 @@ namespace LearningPlatformRepoPattern.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            //Mycourses -> subcourses 
+
+            modelBuilder.Entity<my_courses>()
+    .HasOne(x => x.SubCourse)
+    .WithMany()
+    .HasForeignKey(x => x.Sid)
+    .HasPrincipalKey(x => x.Id);
             // SubCourse -> MasterCourse
             modelBuilder.Entity<SubCourse>()
-                .HasOne<MasterCourse>()
-                .WithMany()
+                .HasOne(x => x.MasterCourse)
+                .WithMany(x => x.SubCourses)
                 .HasForeignKey(x => x.MasterCourseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Topic -> MasterCourse
             modelBuilder.Entity<Topic>()
-                .HasOne<MasterCourse>()
+                .HasOne(x => x.MasterCourse)
                 .WithMany()
                 .HasForeignKey(x => x.MasterCourseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Topic -> SubCourse
             modelBuilder.Entity<Topic>()
-                .HasOne<SubCourse>()
+                .HasOne(x => x.SubCourse)
                 .WithMany()
-                .HasForeignKey(x => x.Id)
+                .HasForeignKey(x => x.SubCourseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Material -> MasterCourse
@@ -58,31 +66,11 @@ namespace LearningPlatformRepoPattern.Data
             // Material -> Topic
             modelBuilder.Entity<Material>()
                 .HasOne(x => x.Topic)
-                .WithMany()
+                .WithMany(x => x.Materials)
                 .HasForeignKey(x => x.TopicId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //// AdminSubscription -> MasterCourse
-            //modelBuilder.Entity<AdminSubscription>()
-            //    .HasOne<MasterCourse>()
-            //    .WithMany()
-            //    .HasForeignKey(x => x.Mid)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            // AdminSubscription -> SubCourse
-            //modelBuilder.Entity<AdminSubscription>()
-            //    .HasOne<SubCourse>()
-            //    .WithMany()
-            //    .HasForeignKey(x => x.Sid)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            // MyCourses -> SubCourse
-            modelBuilder.Entity<my_courses>()
-                .HasOne<SubCourse>()
-                .WithMany()
-                .HasForeignKey(x => x.Sid)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            
             // MyCourses -> User
             modelBuilder.Entity<my_courses>()
                 .HasOne<User>()
@@ -95,10 +83,6 @@ namespace LearningPlatformRepoPattern.Data
                 .Property(x => x.Amount)
                 .HasPrecision(9, 2);
 
-            //modelBuilder.Entity<AdminSubscription>()
-            //    .Property(x => x.SubAmount)
-            //    .HasPrecision(9, 2);
-
             // Mcq -> Material
             modelBuilder.Entity<Mcq>()
                 .HasOne(x => x.Material)
@@ -106,7 +90,6 @@ namespace LearningPlatformRepoPattern.Data
                 .HasForeignKey(x => x.MaterialId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
-
-        }
+    }
     
 }

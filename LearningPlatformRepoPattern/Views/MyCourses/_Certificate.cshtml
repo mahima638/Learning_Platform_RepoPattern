@@ -1,0 +1,91 @@
+﻿@model LearningPlatformRepoPattern.Models.CertificateViewModel
+
+<div id="certificatePrintArea"
+     style="
+    width: 900px;
+    min-height: 600px;
+    margin: auto;
+    padding: 50px;
+    border: 10px solid #333;
+    background: white;
+    text-align: center;
+    font-family: Georgia, serif;
+    ">
+
+    <div style="
+        border: 3px solid #555;
+        padding: 40px;
+        min-height: 500px;
+        ">
+
+        <h1 style="
+            font-size: 42px;
+            margin-bottom: 10px;
+            ">
+            CERTIFICATE
+        </h1>
+
+        <h2 style="
+            font-size: 28px;
+            margin-bottom: 35px;
+            ">
+            OF COMPLETION
+        </h2>
+
+        <p style="font-size: 20px;">
+            This certificate is proudly presented to
+        </p>
+
+        <h2 style="
+            font-size: 36px;
+            margin: 25px 0;
+            text-decoration: underline;
+            ">
+            @Model.UserName
+        </h2>
+
+        <p style="font-size: 20px;">
+            for successfully completing
+        </p>
+
+        <h2 style="font-size: 30px;">
+            @Model.CourseName
+        </h2>
+
+        <p style="font-size: 22px;">
+            <strong>@Model.SubCourseName</strong>
+        </p>
+
+        <p style="
+            font-size: 18px;
+            margin-top: 40px;
+            ">
+            Completion Date:
+            <strong>
+                @Model.CompletionDate.ToString("dd MMMM yyyy")
+            </strong>
+        </p>
+
+        <div style="
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            ">
+
+            <div>
+                ______________________
+                <br />
+                <strong>Instructor</strong>
+            </div>
+
+            <div>
+                ______________________
+                <br />
+                <strong>Authorized Signature</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

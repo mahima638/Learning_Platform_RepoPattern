@@ -14,5 +14,9 @@ namespace LearningPlatformRepoPattern.Models
 
         [Column("user_id")]
         public int UserId { get; set; }
+        // Navigation property
+
+       
+        public SubCourse SubCourse { get; set; }
     }
 }

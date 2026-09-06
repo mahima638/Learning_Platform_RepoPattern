@@ -25,6 +25,6 @@ namespace LearningPlatformRepoPattern.Models
         [Column("createdBy")]
         public string CreatedBy { get; set; }
 
-        public ICollection<SubCourse> SubCourses { get; set; }
+        public ICollection<SubCourse> SubCourses { get; set; } = new List<SubCourse>();
     }
 }

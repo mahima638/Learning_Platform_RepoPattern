@@ -1,0 +1,137 @@
+﻿@model List<LearningPlatformRepoPattern.Models.SubCourse>
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">All Courses</h2>
+
+    <div class="mb-4">
+        <a asp-controller="User"
+           asp-action="Cart"
+           class="btn btn-outline-primary">
+            🛒 Cart (@ViewBag.CartCount)
+        </a>
+    </div>
+
+    <!-- Course Type Selection -->
+    <div class="mb-4">
+        <label class="me-3">
+            <input type="checkbox"
+                   id="masterCourseCheck"
+                   onclick="toggleMasterCourses()">
+            Master Course
+        </label>
+
+        <label>
+            <input type="checkbox"
+                   id="subCourseCheck"
+                   onclick="toggleSubCourses()">
+            Sub Course
+        </label>
+    </div>
+   
+
+    <!-- Master Courses -->
+    <div id="masterCourses" class="row" style="display:none;">
+
+        @foreach (var master in ViewBag.MasterCourses)
+        {
+            <div class="col-md-4 mb-4">
+
+                <div class="card h-100 shadow-sm">
+
+                    <img src="@master.ThumbnailPath"
+                         class="card-img-top"
+                         alt="@master.CourseName"
+                         style="height:180px; object-fit:cover;">
+
+                    <div class="card-body">
+
+                        <h5 class="card-title">
+                            @master.CourseName
+                        </h5>
+
+                        <a asp-controller="User"
+                           asp-action="SubCourses"
+                           asp-route-mid="@master.Id"
+                           class="btn btn-primary">
+                            View Details
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    <!-- Sub Courses -->
+    <div id="subCourses" class="row" style="display:none;">
+
+        @foreach (var course in Model)
+        {
+            <div class="col-md-4 mb-4">
+
+                <div class="card h-100 shadow-sm">
+
+                    <div class="card-body">
+
+                        <h5 class="card-title">
+                            @course.SubCourseName
+                        </h5>
+
+                        <p class="card-text">
+                            ₹@course.Amount
+                        </p>
+
+                        <form asp-controller="User"
+                              asp-action="AddToCart"
+                              method="post">
+
+                            <input type="hidden"
+                                   name="sid"
+                                   value="@course.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Add to Cart
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<script>
+    function toggleMasterCourses() {
+        var checkbox = document.getElementById("masterCourseCheck");
+        var section = document.getElementById("masterCourses");
+
+        if (checkbox.checked) {
+            section.style.display = "flex";
+        }
+        else {
+            section.style.display = "none";
+        }
+    }
+
+    function toggleSubCourses() {
+        var checkbox = document.getElementById("subCourseCheck");
+        var section = document.getElementById("subCourses");
+
+        if (checkbox.checked) {
+            section.style.display = "flex";
+        }
+        else {
+            section.style.display = "none";
+        }
+    }
+</script>

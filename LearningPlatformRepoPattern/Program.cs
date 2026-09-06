@@ -31,8 +31,7 @@ builder.Services.AddScoped<IMasterCourseRepository, MasterCourseService>();
 builder.Services.AddScoped<ISubCourseRepository, SubCourseService>();
 
 // My Courses Repository and Service
-builder.Services.AddScoped<IMyCoursesRepository, MyCoursesRepository>();
-builder.Services.AddScoped<IMyCoursesService, MyCoursesService>();
+builder.Services.AddScoped<IMyCoursesRepository, MyCoursesService>();
 
 // Subscription
 builder.Services.AddScoped<SubscriptionRepository>();

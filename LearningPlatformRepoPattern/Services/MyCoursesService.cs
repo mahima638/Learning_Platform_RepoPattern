@@ -1,36 +1,52 @@
-﻿using LearningPlatformRepoPattern.Models;
+﻿using LearningPlatformRepoPattern.Data;
+using LearningPlatformRepoPattern.Models;
 using LearningPlatformRepoPattern.Repository;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace LearningPlatformRepoPattern.Services
 {
-    public class MyCoursesService : IMyCoursesService
+    public class MyCoursesService : IMyCoursesRepository
     {
-        private readonly IMyCoursesRepository _repository;
+        private readonly ApplicationDbContext _context;
 
-        public MyCoursesService(
-            IMyCoursesRepository repository)
+        public MyCoursesService(ApplicationDbContext context)
         {
-            _repository = repository;
+            _context = context;
         }
 
-        // My Courses
-        public async Task<List<MyCourseViewModel>> GetMyCourses(
-            int userId)
+       //my courses
+        public async Task<List<MyCourseViewModel>> GetMyCourses(int userId)
         {
-            return await _repository.GetMyCourses(userId);
+            var myCourses = await _context.MyCourses
+                .Where(x => x.UserId == userId)
+                .Include(x => x.SubCourse)
+                .ThenInclude(x => x.MasterCourse)
+                .ToListAsync();
+
+            var courses = myCourses.Select(x => new MyCourseViewModel
+            {
+                Sid = x.SubCourse.Id,
+                UserId = x.UserId,
+                Sname = x.SubCourse.SubCourseName,
+                Sstatus = x.SubCourse.Status,
+                Samount = x.SubCourse.Amount,
+                Mname = x.SubCourse.MasterCourse.CourseName,
+                Mthumbnail = x.SubCourse.MasterCourse.ThumbnailPath
+            }).ToList();
+
+            return courses;
         }
 
+        // =====================================================
+        // WATCH VIDEO
+        // =====================================================
 
-        // Watch Video
-        public async Task<WatchVideoViewModel> GetWatchVideo(
-            int sid,
-            int userId,
-            int? tid)
+        public async Task<WatchVideoViewModel> GetWatchVideo(int sid,int userId,int? tid)
         {
             // Get Sub Course
-            var subCourse =
-                await _repository.GetSubCourse(sid);
+            var subCourse = await _context.SubCourses
+                .FirstOrDefaultAsync(x => x.Id == sid);
 
             if (subCourse == null)
             {
@@ -38,9 +54,8 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             // Get Master Course
-            var masterCourse =
-                await _repository.GetMasterCourse(
-                    subCourse.MasterCourseId);
+            var masterCourse = await _context.MasterCourses
+                .FirstOrDefaultAsync(x => x.Id == subCourse.MasterCourseId);
 
             if (masterCourse == null)
             {
@@ -48,75 +63,69 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             // Get Topics
-            var topics =
-                await _repository.GetTopics(sid);
+            var topics = await _context.Topics
+                .Where(x => x.SubCourseId == sid)
+                .OrderBy(x => x.Id)
+                .ToListAsync();
 
             if (topics.Count == 0)
             {
                 return null;
             }
 
-            // Get Progress
-            var progress =
-                await _repository.GetTopicProgress(
-                    userId,
-                    sid);
+            // Get User Progress
+            var progress = await _context.TopicProgress
+                .Where(x =>
+                    x.UserId == userId &&
+                    x.Sid == sid)
+                .ToListAsync();
 
             // Create Topic Items
-            var topicItems =
-                new List<TopicItemViewModel>();
+            var topicItems = new List<TopicItemViewModel>();
 
             for (int i = 0; i < topics.Count; i++)
             {
                 var topic = topics[i];
-
-                var currentProgress =
-                    progress.FirstOrDefault(
-                        x => x.Tid == topic.Id);
+                var currentProgress = progress.FirstOrDefault(
+                    x => x.Tid == topic.Id);
 
                 bool isCompleted =
                     currentProgress != null &&
                     currentProgress.McqPassed;
-
                 bool isUnlocked;
 
-                // First Topic
+                // First topic is always unlocked
                 if (i == 0)
                 {
                     isUnlocked = true;
                 }
                 else
                 {
-                    var previousTopic =
-                        topics[i - 1];
+                    var previousTopic = topics[i - 1];
 
-                    var previousProgress =
-                        progress.FirstOrDefault(
-                            x => x.Tid == previousTopic.Id);
+                    var previousProgress = progress.FirstOrDefault(
+                        x => x.Tid == previousTopic.Id);
 
                     isUnlocked =
                         previousProgress != null &&
                         previousProgress.McqPassed;
                 }
 
-                topicItems.Add(
-                    new TopicItemViewModel
-                    {
-                        Topic = topic,
-                        IsUnlocked = isUnlocked,
-                        IsCompleted = isCompleted
-                    });
+                topicItems.Add(new TopicItemViewModel
+                {
+                    Topic = topic,
+                    IsUnlocked = isUnlocked,
+                    IsCompleted = isCompleted
+                });
             }
 
-
-            // Select Current Topic
+           //select Current topic
             int currentTopicId;
 
             if (tid.HasValue)
             {
-                var selectedTopic =
-                    topicItems.FirstOrDefault(
-                        x => x.Topic.Id == tid.Value);
+                var selectedTopic = topicItems.FirstOrDefault(
+                    x => x.Topic.Id == tid.Value);
 
                 if (selectedTopic == null ||
                     !selectedTopic.IsUnlocked)
@@ -128,62 +137,62 @@ namespace LearningPlatformRepoPattern.Services
             }
             else
             {
-                currentTopicId =
-                    topicItems
-                        .First(x => x.IsUnlocked)
-                        .Topic.Id;
+                currentTopicId = topicItems
+                    .First(x => x.IsUnlocked)
+                    .Topic
+                    .Id;
             }
 
+           //get materil
+            var material = await _context.Materials
+                .FirstOrDefaultAsync(x =>
+                    x.SubCourseId == sid &&
+                    x.TopicId == currentTopicId);
 
-            // Get Material
-            var material =
-                await _repository.GetMaterial(
-                    sid,
-                    currentTopicId);
+            //Get mcq
 
-
-            // Get MCQs
-            var mcqs =
-                new List<Mcq>();
+            var mcqs = new List<Mcq>();
 
             if (material != null)
             {
-                mcqs =
-                    await _repository.GetMcqs(
-                        material.Id);
+                mcqs = await _context.Mcqs
+                    .Where(x => x.MaterialId == material.Id)
+                    .OrderBy(x => x.Id)
+                    .Take(3)
+                    .ToListAsync();
             }
 
-
-            // Certificate Check
+           // certificate check
             bool certificateUnlocked =
-                topicItems.All(
-                    x => x.IsCompleted);
+                topicItems.Count > 0 &&
+                topicItems.All(x => x.IsCompleted);
 
+           //view model
+            var model = new WatchVideoViewModel
+            {
+                Sid = sid,
+                UserId = userId,
+                CurrentTopicId = currentTopicId,
 
-            // Create ViewModel
-            var model =
-                new WatchVideoViewModel
-                {
-                    Sid = sid,
-                    UserId = userId,
-                    CurrentTopicId = currentTopicId,
-                    Sname = subCourse.SubCourseName,
-                    Mname = masterCourse.CourseName,
-                    Mthumbnail = masterCourse.ThumbnailPath,
-                    TopicItems = topicItems,
-                    Mcqs = mcqs,
-                    CertificateUnlocked =
-                        certificateUnlocked
-                };
+                Sname = subCourse.SubCourseName,
+                Mname = masterCourse.CourseName,
+                Mthumbnail = masterCourse.ThumbnailPath,
+
+                TopicItems = topicItems,
+                Mcqs = mcqs,
+
+                CertificateUnlocked = certificateUnlocked
+            };
 
             return model;
         }
 
-
-        // Download Assignment
-        public async Task<(byte[] FileBytes, string FileName)> DownloadAssignment(int sid)
+       //assignment download
+        public async Task<(byte[] FileBytes, string FileName)>
+            DownloadAssignment(int sid)
         {
-            var material = await _repository.GetAssignment(sid);
+            var material = await _context.Materials
+                .FirstOrDefaultAsync(x => x.SubCourseId == sid);
 
             if (material == null)
             {
@@ -198,8 +207,7 @@ namespace LearningPlatformRepoPattern.Services
             var filePath = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "wwwroot",
-                material.Assignment.TrimStart('/')
-            );
+                material.Assignment.TrimStart('/'));
 
             if (!File.Exists(filePath))
             {
@@ -212,7 +220,8 @@ namespace LearningPlatformRepoPattern.Services
 
             return (fileBytes, fileName);
         }
-        // Submit Assignment
+
+       //submit assignment
         public async Task<bool> SubmitAssignment(
             IFormFile assignmentFile)
         {
@@ -222,11 +231,10 @@ namespace LearningPlatformRepoPattern.Services
                 return false;
             }
 
-            var folderPath =
-                Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot",
-                    "submissions");
+            var folderPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "submissions");
 
             if (!Directory.Exists(folderPath))
             {
@@ -234,43 +242,40 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             var fileName =
-                Guid.NewGuid().ToString()
-                + Path.GetExtension(
-                    assignmentFile.FileName);
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(assignmentFile.FileName);
 
-            var filePath =
-                Path.Combine(
-                    folderPath,
-                    fileName);
+            var filePath = Path.Combine(
+                folderPath,
+                fileName);
 
-            using (var stream =
-                   new FileStream(
-                       filePath,
-                       FileMode.Create))
+            using (var stream = new FileStream(
+                filePath,
+                FileMode.Create))
             {
-                await assignmentFile.CopyToAsync(
-                    stream);
+                await assignmentFile.CopyToAsync(stream);
             }
 
             return true;
         }
 
-
-        // Submit MCQ
-        public async Task<(int Score, int Total, bool Passed, string Message)> SubmitMcq(
-            int sid,
-            int userId,
-            int tid,
-            List<string> answers)
+        //submit mcq
+        public async Task<(int Score, int Total, bool Passed, string Message)>
+            SubmitMcq(
+                int sid,
+                int userId,
+                int tid,
+                List<string> answers)
         {
             // Get Topics
-            var topics =
-                await _repository.GetTopics(sid);
+            var topics = await _context.Topics
+                .Where(x => x.SubCourseId == sid)
+                .OrderBy(x => x.Id)
+                .ToListAsync();
 
             // Find Current Topic
-            var topic =
-                topics.FirstOrDefault(
-                    x => x.Id == tid);
+            var topic = topics.FirstOrDefault(
+                x => x.Id == tid);
 
             if (topic == null)
             {
@@ -283,21 +288,21 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             // Find Topic Index
-            int topicIndex =
-                topics.FindIndex(
-                    x => x.Id == tid);
+            int topicIndex = topics.FindIndex(
+                x => x.Id == tid);
 
-            // Check Previous Topic
+           //check previous topic
             if (topicIndex > 0)
             {
                 int previousTopicId =
                     topics[topicIndex - 1].Id;
 
                 bool previousPassed =
-                    await _repository.IsTopicPassed(
-                        userId,
-                        sid,
-                        previousTopicId);
+                    await _context.TopicProgress.AnyAsync(x =>
+                        x.UserId == userId &&
+                        x.Sid == sid &&
+                        x.Tid == previousTopicId &&
+                        x.McqPassed);
 
                 if (!previousPassed)
                 {
@@ -310,11 +315,12 @@ namespace LearningPlatformRepoPattern.Services
                 }
             }
 
-            // Get Material
-            var material =
-                await _repository.GetMaterial(
-                    sid,
-                    tid);
+            //Get material
+
+            var material = await _context.Materials
+                .FirstOrDefaultAsync(x =>
+                    x.SubCourseId == sid &&
+                    x.TopicId == tid);
 
             if (material == null)
             {
@@ -326,10 +332,12 @@ namespace LearningPlatformRepoPattern.Services
                 );
             }
 
-            // Get MCQs
-            var mcqs =
-                await _repository.GetMcqs(
-                    material.Id);
+           //get mcq
+            var mcqs = await _context.Mcqs
+                .Where(x => x.MaterialId == material.Id)
+                .OrderBy(x => x.Id)
+                .Take(3)
+                .ToListAsync();
 
             if (mcqs.Count == 0)
             {
@@ -341,12 +349,10 @@ namespace LearningPlatformRepoPattern.Services
                 );
             }
 
-            // Calculate Score
+            //calculate score
             int score = 0;
 
-            for (int i = 0;
-                 i < mcqs.Count;
-                 i++)
+            for (int i = 0; i < mcqs.Count; i++)
             {
                 if (answers != null &&
                     i < answers.Count)
@@ -354,59 +360,55 @@ namespace LearningPlatformRepoPattern.Services
                     if (string.Equals(
                         answers[i]?.Trim(),
                         mcqs[i].Answer?.Trim(),
-                        StringComparison
-                            .OrdinalIgnoreCase))
+                        StringComparison.OrdinalIgnoreCase))
                     {
                         score++;
                     }
                 }
             }
 
-            // Pass only if 3/3
+            // Pass only when all 3 MCQs are correct
             bool passed =
                 score == 3 &&
                 mcqs.Count == 3;
 
+            //save progress
 
-            // Save Progress
             if (passed)
             {
                 var existingProgress =
-                    await _repository.GetTopicProgress(
-                        userId,
-                        sid,
-                        tid);
+                    await _context.TopicProgress
+                        .FirstOrDefaultAsync(x =>
+                            x.UserId == userId &&
+                            x.Sid == sid &&
+                            x.Tid == tid);
 
                 if (existingProgress == null)
                 {
-                    var progress =
-                        new TopicProgress
-                        {
-                            UserId = userId,
-                            Sid = sid,
-                            Tid = tid,
-                            McqPassed = true,
-                            CompletedAt =
-                                DateTime.Now
-                        };
+                    var progress = new TopicProgress
+                    {
+                        UserId = userId,
+                        Sid = sid,
+                        Tid = tid,
+                        McqPassed = true,
+                        CompletedAt = DateTime.Now
+                    };
 
-                    await _repository
-                        .AddTopicProgress(progress);
+                    _context.TopicProgress.Add(progress);
                 }
                 else
                 {
-                    existingProgress.McqPassed =
-                        true;
+                    existingProgress.McqPassed = true;
+                    existingProgress.CompletedAt = DateTime.Now;
 
-                    existingProgress.CompletedAt =
-                        DateTime.Now;
-
-                    await _repository
-                        .UpdateTopicProgress(
-                            existingProgress);
+                    _context.TopicProgress.Update(
+                        existingProgress);
                 }
+
+                await _context.SaveChangesAsync();
             }
 
+            //result message
             string message;
 
             if (passed)
@@ -417,37 +419,41 @@ namespace LearningPlatformRepoPattern.Services
             else
             {
                 message =
-                    "You scored "
-                    + score
-                    + "/3. You must score 3/3 to unlock the next topic.";
+                    "You scored " +
+                    score +
+                    "/" +
+                    mcqs.Count +
+                    ". You must score 3/3 to unlock the next topic.";
             }
 
             return (
                 score,
                 mcqs.Count,
                 passed,
-                message
-            );
+                message);
         }
 
+        //certificate
 
-        // Certificate
-        public async Task<CertificateViewModel> GetCertificate(
-            int sid,
-            int userId)
+        public async Task<CertificateViewModel>
+            GetCertificate(
+                int sid,
+                int userId)
         {
-            // Get User
-            var user =
-                await _repository.GetUser(userId);
+            // Get Logged-in User
+            var user = await _context.Users
+                .FirstOrDefaultAsync(
+                    x => x.UserId == userId);
 
             if (user == null)
             {
                 return null;
             }
 
-            // Get Sub Course
-            var subCourse =
-                await _repository.GetSubCourse(sid);
+            // Get Selected Sub Course
+            var subCourse = await _context.SubCourses
+                .FirstOrDefaultAsync(
+                    x => x.Id == sid);
 
             if (subCourse == null)
             {
@@ -455,43 +461,58 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             // Get Master Course
-            var masterCourse =
-                await _repository.GetMasterCourse(
-                    subCourse.Id);
+            var masterCourse = await _context.MasterCourses
+                .FirstOrDefaultAsync(
+                    x => x.Id == subCourse.MasterCourseId);
 
             if (masterCourse == null)
             {
                 return null;
             }
 
-            // Get Topics
-            var topics =
-                await _repository.GetTopics(sid);
+            // Get All Topics
+            var topics = await _context.Topics
+                .Where(x => x.SubCourseId == sid)
+                .OrderBy(x => x.Id)
+                .ToListAsync();
 
-            // Get Completed Topics
-            var completedTopics =
-                await _repository.GetCompletedTopics(
-                    userId,
-                    sid);
-
-            if (topics.Count == 0 ||
-                completedTopics < topics.Count)
+            if (topics.Count == 0)
             {
                 return null;
             }
 
-            // Create Certificate
-            var model =
-                new CertificateViewModel
-                {
-                    UserName = user.UserName,
-                    CourseName =
-                        masterCourse.CourseName,
-                    SubCourseName =
-                        subCourse.SubCourseName,
-                    CompletionDate =
-                        DateTime.Now
-                };
+            // Get User Progress
+            var progress = await _context.TopicProgress
+                .Where(x =>
+                    x.UserId == userId &&
+                    x.Sid == sid)
+                .ToListAsync();
+
+            // Get Completed Topic IDs
+            var completedTopicIds = progress
+                .Where(x => x.McqPassed)
+                .Select(x => x.Tid)
+                .Distinct()
+                .ToList();
+
+            // Check All Topics Completed
+            bool allTopicsCompleted = topics.All(
+                topic => completedTopicIds.Contains(topic.Id));
+
+            if (!allTopicsCompleted)
+            {
+                return null;
+            }
+
+            //create certificate
+
+            var model = new CertificateViewModel
+            {
+                UserName = user.UserName,
+                CourseName = masterCourse.CourseName,
+                SubCourseName = subCourse.SubCourseName,
+                CompletionDate = DateTime.Now
+            };
 
             return model;
         }

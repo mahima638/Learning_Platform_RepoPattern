@@ -34,6 +34,6 @@ namespace LearningPlatformRepoPattern.Models
         [ForeignKey("SubCourseId")]
         public SubCourse SubCourse { get; set; }
 
-        public ICollection<Material> Materials { get; set; }
+        public ICollection<Material> Materials { get; set; } = new List<Material>();
     }
 }

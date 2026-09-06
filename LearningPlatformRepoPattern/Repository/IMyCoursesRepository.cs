@@ -1,49 +1,45 @@
 ﻿using LearningPlatformRepoPattern.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace LearningPlatformRepoPattern.Repository
 {
     public interface IMyCoursesRepository
     {
-        Task<List<MyCourseViewModel>> GetMyCourses(int userId);
+        //to show my courses on page 
+        Task<List<MyCourseViewModel>> GetMyCourses(
+            int userId);
 
-        Task<SubCourse> GetSubCourse(int sid);
 
-        Task<MasterCourse> GetMasterCourse(int mid);
-
-        Task<List<Topic>> GetTopics(int sid);
-
-        Task<List<TopicProgress>> GetTopicProgress(
-            int userId,
-            int sid);
-
-        Task<Material> GetMaterial(
+        //for watch video
+        Task<WatchVideoViewModel> GetWatchVideo(
             int sid,
-            int tid);
-
-        Task<Material> GetAssignment(int sid);
-
-        Task<List<Mcq>> GetMcqs(int materialId);
-
-        Task<TopicProgress> GetTopicProgress(
             int userId,
+            int? tid);
+
+
+        //download assignment
+        Task<(byte[] FileBytes, string FileName)>
+            DownloadAssignment(int sid);
+
+        //submit Assignment
+        Task<bool> SubmitAssignment(
+            IFormFile assignmentFile);
+
+        //Mcq
+        Task<(int Score,
+              int Total,
+              bool Passed,
+              string Message)>
+            SubmitMcq(
+                int sid,
+                int userId,
+                int tid,
+                List<string> answers);
+
+
+        //certificate
+        Task<CertificateViewModel> GetCertificate(
             int sid,
-            int tid);
-
-        Task AddTopicProgress(
-            TopicProgress progress);
-
-        Task UpdateTopicProgress(
-            TopicProgress progress);
-
-        Task<bool> IsTopicPassed(
-            int userId,
-            int sid,
-            int tid);
-
-        Task<User> GetUser(int userId);
-
-        Task<int> GetCompletedTopics(
-            int userId,
-            int sid);
+            int userId);
     }
 }

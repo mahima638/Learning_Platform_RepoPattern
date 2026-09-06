@@ -20,6 +20,14 @@ namespace LearningPlatformRepoPattern.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            //Mycourses -> subcourses 
+
+            modelBuilder.Entity<my_courses>()
+    .HasOne(x => x.SubCourse)
+    .WithMany()
+    .HasForeignKey(x => x.Sid)
+    .HasPrincipalKey(x => x.Id);
             // SubCourse -> MasterCourse
             modelBuilder.Entity<SubCourse>()
                 .HasOne(x => x.MasterCourse)
@@ -62,27 +70,7 @@ namespace LearningPlatformRepoPattern.Data
             .HasForeignKey(x => x.TopicId)
             .OnDelete(DeleteBehavior.Restrict);
 
-            //// AdminSubscription -> MasterCourse
-            //modelBuilder.Entity<AdminSubscription>()
-            //    .HasOne<MasterCourse>()
-            //    .WithMany()
-            //    .HasForeignKey(x => x.Mid)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            // AdminSubscription -> SubCourse
-            //modelBuilder.Entity<AdminSubscription>()
-            //    .HasOne<SubCourse>()
-            //    .WithMany()
-            //    .HasForeignKey(x => x.Sid)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            // MyCourses -> SubCourse
-            modelBuilder.Entity<my_courses>()
-                .HasOne<SubCourse>()
-                .WithMany()
-                .HasForeignKey(x => x.Sid)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            
             // MyCourses -> User
             modelBuilder.Entity<my_courses>()
                 .HasOne<User>()
@@ -95,10 +83,6 @@ namespace LearningPlatformRepoPattern.Data
                 .Property(x => x.Amount)
                 .HasPrecision(9, 2);
 
-            //modelBuilder.Entity<AdminSubscription>()
-            //    .Property(x => x.SubAmount)
-            //    .HasPrecision(9, 2);
-
             // Mcq -> Material
             modelBuilder.Entity<Mcq>()
                 .HasOne(x => x.Material)
@@ -106,7 +90,6 @@ namespace LearningPlatformRepoPattern.Data
                 .HasForeignKey(x => x.MaterialId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
-
-        }
+    }
     
 }

@@ -1,5 +1,5 @@
-﻿using LearningPlatformRepoPattern.Interfaces;
-using LearningPlatformRepoPattern.Models;
+﻿using LearningPlatformRepoPattern.Models;
+using LearningPlatformRepoPattern.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,9 +7,9 @@ namespace LearningPlatformRepoPattern.Controllers
 {
     public class MasterCourseController : Controller
     {
-        private readonly IMasterCourseService _service;
+        private readonly IMasterCourseRepository _service;
 
-        public MasterCourseController(IMasterCourseService service)
+        public MasterCourseController(IMasterCourseRepository service)
         {
             _service = service;
         }
@@ -23,7 +23,7 @@ namespace LearningPlatformRepoPattern.Controllers
         [HttpPost]
         public IActionResult Add(MasterCourse model, IFormFile thumbnail)
         {
-            string username = User.Identity?.Name ?? "System";    // falls back safely if no login yet
+            string username = HttpContext.Session.GetString("DisplayName") ?? "System";
             string message = _service.Add(model, thumbnail, username);
             TempData["Message"] = message;
             return RedirectToAction("Index");

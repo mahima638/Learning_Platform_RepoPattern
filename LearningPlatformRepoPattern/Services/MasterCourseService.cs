@@ -1,6 +1,6 @@
 ﻿using LearningPlatformRepoPattern.Data;
-using LearningPlatformRepoPattern.Interfaces;
 using LearningPlatformRepoPattern.Models;
+using LearningPlatformRepoPattern.Repository;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace LearningPlatformRepoPattern.Services
 {
-    public class MasterCourseService : IMasterCourseService
+    public class MasterCourseService : IMasterCourseRepository
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;

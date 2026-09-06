@@ -12,13 +12,17 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddSession();
 
-
+// User Repository
 builder.Services.AddScoped<IUserRepository, UserService>();
 
 builder.Services.AddScoped<IMasterCourseService, MasterCourseService>();
 builder.Services.AddScoped<ISubCourseService, SubCourseService>();
+// My Courses Repository and Service
+builder.Services.AddScoped<IMyCoursesRepository, MyCoursesRepository>();
+builder.Services.AddScoped<IMyCoursesService, MyCoursesService>();
 
 var app = builder.Build();
 
@@ -29,7 +33,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseRouting();
+
 app.UseSession();
 
 app.UseAuthorization();

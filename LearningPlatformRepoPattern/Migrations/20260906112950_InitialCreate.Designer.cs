@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningPlatformRepoPattern.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260905183917_InitialCreate3")]
-    partial class InitialCreate3
+    [Migration("20260906112950_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,7 @@ namespace LearningPlatformRepoPattern.Migrations
                     b.Property<string>("CourseName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("mname");
+                        .HasColumnName("CourseName");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
@@ -160,6 +160,7 @@ namespace LearningPlatformRepoPattern.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(9, 2)
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("samount");
 
@@ -176,6 +177,9 @@ namespace LearningPlatformRepoPattern.Migrations
                         .HasColumnType("int")
                         .HasColumnName("mid");
 
+                    b.Property<int?>("MasterCourseId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -184,11 +188,13 @@ namespace LearningPlatformRepoPattern.Migrations
                     b.Property<string>("SubCourseName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("sname");
+                        .HasColumnName("SubCourseName");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MasterCourseId");
+
+                    b.HasIndex("MasterCourseId1");
 
                     b.ToTable("sub_course");
                 });
@@ -320,6 +326,10 @@ namespace LearningPlatformRepoPattern.Migrations
 
                     b.HasKey("mcid");
 
+                    b.HasIndex("Sid");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("my_courses");
                 });
 
@@ -328,19 +338,19 @@ namespace LearningPlatformRepoPattern.Migrations
                     b.HasOne("LearningPlatformRepoPattern.Models.MasterCourse", "MasterCourse")
                         .WithMany()
                         .HasForeignKey("MasterCourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("LearningPlatformRepoPattern.Models.SubCourse", "SubCourse")
                         .WithMany()
                         .HasForeignKey("SubCourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("LearningPlatformRepoPattern.Models.Topic", "Topic")
                         .WithMany("Materials")
                         .HasForeignKey("TopicId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("MasterCourse");
@@ -355,7 +365,7 @@ namespace LearningPlatformRepoPattern.Migrations
                     b.HasOne("LearningPlatformRepoPattern.Models.Material", "Material")
                         .WithMany("Mcqs")
                         .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Material");
@@ -364,10 +374,14 @@ namespace LearningPlatformRepoPattern.Migrations
             modelBuilder.Entity("LearningPlatformRepoPattern.Models.SubCourse", b =>
                 {
                     b.HasOne("LearningPlatformRepoPattern.Models.MasterCourse", "MasterCourse")
-                        .WithMany("SubCourses")
+                        .WithMany()
                         .HasForeignKey("MasterCourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("LearningPlatformRepoPattern.Models.MasterCourse", null)
+                        .WithMany("SubCourses")
+                        .HasForeignKey("MasterCourseId1");
 
                     b.Navigation("MasterCourse");
                 });
@@ -377,18 +391,33 @@ namespace LearningPlatformRepoPattern.Migrations
                     b.HasOne("LearningPlatformRepoPattern.Models.MasterCourse", "MasterCourse")
                         .WithMany()
                         .HasForeignKey("MasterCourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("LearningPlatformRepoPattern.Models.SubCourse", "SubCourse")
                         .WithMany()
                         .HasForeignKey("SubCourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("MasterCourse");
 
                     b.Navigation("SubCourse");
+                });
+
+            modelBuilder.Entity("LearningPlatformRepoPattern.Models.my_courses", b =>
+                {
+                    b.HasOne("LearningPlatformRepoPattern.Models.SubCourse", null)
+                        .WithMany()
+                        .HasForeignKey("Sid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LearningPlatformRepoPattern.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("LearningPlatformRepoPattern.Models.MasterCourse", b =>

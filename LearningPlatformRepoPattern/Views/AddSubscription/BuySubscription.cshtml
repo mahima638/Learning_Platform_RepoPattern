@@ -1,0 +1,132 @@
+﻿@model LearningPlatformRepoPattern.Models.Subscriptions
+
+@{
+    ViewData["Title"] = "Payment";
+}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<h2>Buy Subscription</h2>
+
+<h3>@Model.sub_type</h3>
+
+<p>
+    Amount:
+    <strong>₹@Model.sub_amount</strong>
+</p>
+
+<button id="rzp-button1">
+    Pay ₹@Model.sub_amount
+</button>
+
+<a asp-controller="AddSubscription"
+   asp-action="UserSubscriptions">
+    Back to Subscriptions
+</a>
+
+
+<script>
+
+    var options = {
+
+        "key": "@ViewBag.RazorpayKey",
+
+        "amount": "@ViewBag.Amount",
+
+        "currency": "INR",
+
+        "name": "Masstech Business Solutions Pvt. Ltd.",
+
+        "description": "@Model.sub_type",
+
+        "order_id": "@ViewBag.OrderId",
+
+        "handler": function(response) {
+
+            // Send successful payment details
+            // to Core MVC controller
+
+            $.ajax({
+
+                url: '@Url.Action("PaymentSuccess", "AddSubscription")',
+
+                type: 'POST',
+
+                data: {
+
+                    razorpay_payment_id:
+                        response.razorpay_payment_id,
+
+                    razorpay_order_id:
+                        response.razorpay_order_id,
+
+                    razorpay_signature:
+                        response.razorpay_signature,
+
+                    subscription_id:
+                            @Model.sub_id
+                    },
+
+                success: function(result) {
+
+                    if (result.success) {
+
+                        window.location.href =
+                            '@Url.Action("PaymentSuccess", "AddSubscription")';
+
+                    }
+                    else {
+
+                        alert(
+                            "Payment verification failed."
+                        );
+
+                    }
+
+                },
+
+                error: function() {
+
+                    alert(
+                        "Something went wrong."
+                    );
+
+                }
+
+            });
+
+        },
+
+        "prefill": {
+
+            "name": "",
+
+            "email": "",
+
+            "contact": ""
+
+        },
+
+        "theme": {
+
+            "color": "#3399cc"
+
+        }
+
+    };
+
+
+    var rzp1 = new Razorpay(options);
+
+
+    document.getElementById('rzp-button1').onclick =
+        function(e) {
+
+            rzp1.open();
+
+            e.preventDefault();
+
+        };
+
+</script>

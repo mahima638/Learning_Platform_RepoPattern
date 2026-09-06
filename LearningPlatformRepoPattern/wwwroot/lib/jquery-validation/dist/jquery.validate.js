@@ -1232,11 +1232,11 @@ $.extend( $.validator, {
 		creditcard: { creditcard: true }
 	},
 
-	addClassRules: function( className, rules ) {
-		if ( className.constructor === String ) {
-			this.classRuleSettings[ className ] = rules;
+	addClassRules: function( clasSubCourseName, rules ) {
+		if ( clasSubCourseName.constructor === String ) {
+			this.classRuleSettings[ clasSubCourseName ] = rules;
 		} else {
-			$.extend( this.classRuleSettings, className );
+			$.extend( this.classRuleSettings, clasSubCourseName );
 		}
 	},
 

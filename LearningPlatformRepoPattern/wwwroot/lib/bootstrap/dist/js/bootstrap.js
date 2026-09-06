@@ -473,7 +473,7 @@
       const inNamespace = typeEvent !== originalTypeEvent;
       const events = getElementEvents(element);
       const storeElementEvent = events[typeEvent] || {};
-      const isNamespace = originalTypeEvent.startsWith('.');
+      const iSubCourseNamespace = originalTypeEvent.startsWith('.');
       if (typeof callable !== 'undefined') {
         // Simplest case: handler is passed, remove that listener ONLY.
         if (!Object.keys(storeElementEvent).length) {
@@ -482,7 +482,7 @@
         removeHandler(element, events, typeEvent, callable, isDelegated ? handler : null);
         return;
       }
-      if (isNamespace) {
+      if (iSubCourseNamespace) {
         for (const elementEvent of Object.keys(events)) {
           removeNamespacedHandlers(element, events, elementEvent, originalTypeEvent.slice(1));
         }
@@ -1367,16 +1367,16 @@
       this._isSliding = true;
       this._setActiveIndicatorElement(nextElementIndex);
       this._activeElement = nextElement;
-      const directionalClassName = isNext ? CLASS_NAME_START : CLASS_NAME_END;
-      const orderClassName = isNext ? CLASS_NAME_NEXT : CLASS_NAME_PREV;
-      nextElement.classList.add(orderClassName);
+      const directionalClasSubCourseName = isNext ? CLASS_NAME_START : CLASS_NAME_END;
+      const orderClasSubCourseName = isNext ? CLASS_NAME_NEXT : CLASS_NAME_PREV;
+      nextElement.classList.add(orderClasSubCourseName);
       reflow(nextElement);
-      activeElement.classList.add(directionalClassName);
-      nextElement.classList.add(directionalClassName);
+      activeElement.classList.add(directionalClasSubCourseName);
+      nextElement.classList.add(directionalClasSubCourseName);
       const completeCallBack = () => {
-        nextElement.classList.remove(directionalClassName, orderClassName);
+        nextElement.classList.remove(directionalClasSubCourseName, orderClasSubCourseName);
         nextElement.classList.add(CLASS_NAME_ACTIVE$2);
-        activeElement.classList.remove(CLASS_NAME_ACTIVE$2, orderClassName, directionalClassName);
+        activeElement.classList.remove(CLASS_NAME_ACTIVE$2, orderClasSubCourseName, directionalClasSubCourseName);
         this._isSliding = false;
         triggerEvent(EVENT_SLID);
       };
@@ -2088,7 +2088,7 @@
   const CLASS_NAME_SHOW$5 = 'show';
   const EVENT_MOUSEDOWN = `mousedown.bs.${NAME$9}`;
   const Default$8 = {
-    className: 'modal-backdrop',
+    clasSubCourseName: 'modal-backdrop',
     clickCallback: null,
     isAnimated: false,
     isVisible: true,
@@ -2096,7 +2096,7 @@
     rootElement: 'body' // give the choice to place backdrop under different elements
   };
   const DefaultType$8 = {
-    className: 'string',
+    clasSubCourseName: 'string',
     clickCallback: '(function|null)',
     isAnimated: 'boolean',
     isVisible: 'boolean',
@@ -2166,7 +2166,7 @@
     _getElement() {
       if (!this._element) {
         const backdrop = document.createElement('div');
-        backdrop.className = this._config.className;
+        backdrop.clasSubCourseName = this._config.clasSubCourseName;
         if (this._config.isAnimated) {
           backdrop.classList.add(CLASS_NAME_FADE$4);
         }
@@ -2840,7 +2840,7 @@
       // 'static' option will be translated to true, and booleans will keep their value
       const isVisible = Boolean(this._config.backdrop);
       return new Backdrop({
-        className: CLASS_NAME_BACKDROP,
+        clasSubCourseName: CLASS_NAME_BACKDROP,
         isVisible,
         isAnimated: true,
         rootElement: this._element.parentNode,
@@ -4210,10 +4210,10 @@
       if (!outerElem.classList.contains(CLASS_DROPDOWN)) {
         return;
       }
-      const toggle = (selector, className) => {
+      const toggle = (selector, clasSubCourseName) => {
         const element = SelectorEngine.findOne(selector, outerElem);
         if (element) {
-          element.classList.toggle(className, open);
+          element.classList.toggle(clasSubCourseName, open);
         }
       };
       toggle(SELECTOR_DROPDOWN_TOGGLE, CLASS_NAME_ACTIVE);

@@ -8,9 +8,9 @@
 
         public int CurrentTopicId { get; set; }
 
-        public string Sname { get; set; }
+        public string SubCourseName { get; set; }
 
-        public string Mname { get; set; }
+        public string CourseName { get; set; }
 
         public string Mthumbnail { get; set; }
 

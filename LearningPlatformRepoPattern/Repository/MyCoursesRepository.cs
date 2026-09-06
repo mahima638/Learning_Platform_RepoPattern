@@ -32,10 +32,10 @@ namespace LearningPlatformRepoPattern.Repository
                     {
                         Sid = x.sc.Id,
                         UserId = x.mc.UserId,
-                        Sname = x.sc.SubCourseName,
+                        SubCourseName = x.sc.SubCourseName,
                         Sstatus = x.sc.Status,
                         Samount = x.sc.Amount,
-                        Mname = master.CourseName,
+                        CourseName = master.CourseName,
                         Mthumbnail = master.ThumbnailPath
                     }
                 )

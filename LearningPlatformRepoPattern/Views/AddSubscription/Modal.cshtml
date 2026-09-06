@@ -1,0 +1,243 @@
+﻿@* @model LearnigAppMVCCore.Models.Subscriptions
+
+@{
+    ViewData["Title"] = "Modal";
+}
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<style>
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    #SubCourseButton {
+        width: 180px;
+        height: 30px;
+        text-align: left;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid black;
+        width: 180px;
+        padding: 5px;
+        z-index: 1;
+    }
+
+        .dropdown-content label {
+            display: block;
+            padding: 5px;
+        }
+
+            .dropdown-content label:hover {
+                background-color: lightgray;
+            }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+</style>
+
+<h1>Add Subscription</h1>
+
+<form asp-controller="Home"
+      asp-action="Modal"
+      method="post"
+      enctype="multipart/form-data">
+
+    <!-- Subscription Name -->
+
+    <label asp-for="sub_type">
+        Subscription Name
+    </label>
+
+    <input asp-for="sub_type"
+           class="form-control" />
+
+    <span asp-validation-for="sub_type"
+          class="text-danger">
+    </span>
+
+    <br />
+    <br />
+
+    <!-- Master Course -->
+
+    <label asp-for="mid">
+        Master Course Name
+    </label>
+
+    <select asp-for="mid"
+            asp-items="ViewBag.MasterCourses"
+            id="MasterCourse"
+            class="form-control">
+
+        <option value="">
+            Select Master Course
+        </option>
+
+    </select>
+
+    <br />
+    <br />
+
+    <!-- Sub Course -->
+
+    <label>
+        Sub Course
+    </label>
+
+    <div class="dropdown">
+
+        <button type="button"
+                id="SubCourseButton">
+
+            Select SubCourse ▼
+
+        </button>
+
+        <div id="SubCourse"
+             class="dropdown-content">
+        </div>
+
+    </div>
+
+    <br />
+    <br />
+
+    <!-- Amount -->
+
+    <label asp-for="sub_amount">
+        Amount
+    </label>
+
+    <input asp-for="sub_amount"
+           class="form-control" />
+
+    <br />
+    <br />
+
+    <!-- Status -->
+
+    <label asp-for="subStatus">
+        Status
+    </label>
+
+    <select asp-for="subStatus"
+            class="form-control">
+
+        <option value="">
+            Select Status
+        </option>
+
+        <option value="Active">
+            Active
+        </option>
+
+        <option value="Inactive">
+            Inactive
+        </option>
+
+    </select>
+
+    <br />
+    <br />
+
+    <!-- Thumbnail -->
+
+    <label>
+        Thumbnail
+    </label>
+
+    <input type="file"
+           name="ThumbnailFile"
+           accept="image/*"
+           class="form-control" />
+
+    <br />
+    <br />
+
+    <input type="submit"
+           value="Add"
+           class="btn btn-primary" />
+
+    <br />
+    <br />
+
+    <a asp-controller="Home"
+       asp-action="Index">
+
+        Back To List
+
+    </a>
+
+</form>
+
+
+<script>
+
+    $(document).ready(function() {
+
+        $("#MasterCourse").change(function() {
+
+            var mid = $(this).val();
+
+            $("#SubCourse").empty();
+
+            if (mid != "") {
+
+                $.ajax({
+
+                    url: '@Url.Action("GetSubCourses", "Home")',
+
+                    type: 'GET',
+
+                    data: {
+                        mid: mid
+                    },
+
+                    success: function(data) {
+
+                        $.each(data, function(i, item) {
+
+                            $("#SubCourse").append(
+
+                                '<label>' +
+
+                                '<input type="checkbox" ' +
+                                'name="sid" ' +
+                                'value="' + item.sid + '">' +
+
+                                ' ' +
+
+                                item.SubCourseName +
+
+                                '</label>'
+
+                            );
+
+                        });
+
+                    },
+
+                    error: function(xhr) {
+
+                        console.log(xhr.responseText);
+
+                        alert("Error loading Sub Courses");
+
+                    }
+
+                });
+
+            }
+
+        });
+
+    });
+
+</script> *@

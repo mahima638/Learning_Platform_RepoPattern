@@ -866,8 +866,8 @@ function find( selector, context, results, seed ) {
 					return results;
 
 				// Class selector
-				} else if ( ( m = match[ 3 ] ) && context.getElementsByClassName ) {
-					push.apply( results, context.getElementsByClassName( m ) );
+				} else if ( ( m = match[ 3 ] ) && context.getElementsByClasSubCourseName ) {
+					push.apply( results, context.getElementsByClasSubCourseName( m ) );
 					return results;
 				}
 			}
@@ -1256,9 +1256,9 @@ function setDocument( node ) {
 	};
 
 	// Class
-	Expr.find.CLASS = function( className, context ) {
-		if ( typeof context.getElementsByClassName !== "undefined" && documentIsHTML ) {
-			return context.getElementsByClassName( className );
+	Expr.find.CLASS = function( clasSubCourseName, context ) {
+		if ( typeof context.getElementsByClasSubCourseName !== "undefined" && documentIsHTML ) {
+			return context.getElementsByClasSubCourseName( clasSubCourseName );
 		}
 	};
 
@@ -1644,15 +1644,15 @@ Expr = jQuery.expr = {
 				};
 		},
 
-		CLASS: function( className ) {
-			var pattern = classCache[ className + " " ];
+		CLASS: function( clasSubCourseName ) {
+			var pattern = classCache[ clasSubCourseName + " " ];
 
 			return pattern ||
-				( pattern = new RegExp( "(^|" + whitespace + ")" + className +
+				( pattern = new RegExp( "(^|" + whitespace + ")" + clasSubCourseName +
 					"(" + whitespace + "|$)" ) ) &&
-				classCache( className, function( elem ) {
+				classCache( clasSubCourseName, function( elem ) {
 					return pattern.test(
-						typeof elem.className === "string" && elem.className ||
+						typeof elem.clasSubCourseName === "string" && elem.clasSubCourseName ||
 							typeof elem.getAttribute !== "undefined" &&
 								elem.getAttribute( "class" ) ||
 							""
@@ -7279,7 +7279,7 @@ jQuery.extend( {
 
 	propFix: {
 		"for": "htmlFor",
-		"class": "className"
+		"class": "clasSubCourseName"
 	}
 } );
 
@@ -7361,7 +7361,7 @@ function classesToArray( value ) {
 
 jQuery.fn.extend( {
 	addClass: function( value ) {
-		var classNames, cur, curValue, className, i, finalValue;
+		var clasSubCourseNames, cur, curValue, clasSubCourseName, i, finalValue;
 
 		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
@@ -7369,18 +7369,18 @@ jQuery.fn.extend( {
 			} );
 		}
 
-		classNames = classesToArray( value );
+		clasSubCourseNames = classesToArray( value );
 
-		if ( classNames.length ) {
+		if ( clasSubCourseNames.length ) {
 			return this.each( function() {
 				curValue = getClass( this );
 				cur = this.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
 
 				if ( cur ) {
-					for ( i = 0; i < classNames.length; i++ ) {
-						className = classNames[ i ];
-						if ( cur.indexOf( " " + className + " " ) < 0 ) {
-							cur += className + " ";
+					for ( i = 0; i < clasSubCourseNames.length; i++ ) {
+						clasSubCourseName = clasSubCourseNames[ i ];
+						if ( cur.indexOf( " " + clasSubCourseName + " " ) < 0 ) {
+							cur += clasSubCourseName + " ";
 						}
 					}
 
@@ -7397,7 +7397,7 @@ jQuery.fn.extend( {
 	},
 
 	removeClass: function( value ) {
-		var classNames, cur, curValue, className, i, finalValue;
+		var clasSubCourseNames, cur, curValue, clasSubCourseName, i, finalValue;
 
 		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
@@ -7409,9 +7409,9 @@ jQuery.fn.extend( {
 			return this.attr( "class", "" );
 		}
 
-		classNames = classesToArray( value );
+		clasSubCourseNames = classesToArray( value );
 
-		if ( classNames.length ) {
+		if ( clasSubCourseNames.length ) {
 			return this.each( function() {
 				curValue = getClass( this );
 
@@ -7419,12 +7419,12 @@ jQuery.fn.extend( {
 				cur = this.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
 
 				if ( cur ) {
-					for ( i = 0; i < classNames.length; i++ ) {
-						className = classNames[ i ];
+					for ( i = 0; i < clasSubCourseNames.length; i++ ) {
+						clasSubCourseName = clasSubCourseNames[ i ];
 
 						// Remove *all* instances
-						while ( cur.indexOf( " " + className + " " ) > -1 ) {
-							cur = cur.replace( " " + className + " ", " " );
+						while ( cur.indexOf( " " + clasSubCourseName + " " ) > -1 ) {
+							cur = cur.replace( " " + clasSubCourseName + " ", " " );
 						}
 					}
 
@@ -7441,7 +7441,7 @@ jQuery.fn.extend( {
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var classNames, className, i, self,
+		var clasSubCourseNames, clasSubCourseName, i, self,
 			type = typeof value,
 			isValidValue = type === "string" || Array.isArray( value );
 
@@ -7458,7 +7458,7 @@ jQuery.fn.extend( {
 			return stateVal ? this.addClass( value ) : this.removeClass( value );
 		}
 
-		classNames = classesToArray( value );
+		clasSubCourseNames = classesToArray( value );
 
 		return this.each( function() {
 			if ( isValidValue ) {
@@ -7466,35 +7466,35 @@ jQuery.fn.extend( {
 				// Toggle individual class names
 				self = jQuery( this );
 
-				for ( i = 0; i < classNames.length; i++ ) {
-					className = classNames[ i ];
+				for ( i = 0; i < clasSubCourseNames.length; i++ ) {
+					clasSubCourseName = clasSubCourseNames[ i ];
 
-					// Check each className given, space separated list
-					if ( self.hasClass( className ) ) {
-						self.removeClass( className );
+					// Check each clasSubCourseName given, space separated list
+					if ( self.hasClass( clasSubCourseName ) ) {
+						self.removeClass( clasSubCourseName );
 					} else {
-						self.addClass( className );
+						self.addClass( clasSubCourseName );
 					}
 				}
 
 			// Toggle whole class name
 			} else if ( value === undefined || type === "boolean" ) {
-				className = getClass( this );
-				if ( className ) {
+				clasSubCourseName = getClass( this );
+				if ( clasSubCourseName ) {
 
-					// Store className if set
-					dataPriv.set( this, "__className__", className );
+					// Store clasSubCourseName if set
+					dataPriv.set( this, "__clasSubCourseName__", clasSubCourseName );
 				}
 
 				// If the element has a class name or if we're passed `false`,
-				// then remove the whole classname (if there was one, the above saved it).
+				// then remove the whole clasSubCourseName (if there was one, the above saved it).
 				// Otherwise bring back whatever was previously saved (if anything),
 				// falling back to the empty string if nothing was stored.
 				if ( this.setAttribute ) {
 					this.setAttribute( "class",
-						className || value === false ?
+						clasSubCourseName || value === false ?
 							"" :
-							dataPriv.get( this, "__className__" ) || ""
+							dataPriv.get( this, "__clasSubCourseName__" ) || ""
 					);
 				}
 			}
@@ -7502,13 +7502,13 @@ jQuery.fn.extend( {
 	},
 
 	hasClass: function( selector ) {
-		var className, elem,
+		var clasSubCourseName, elem,
 			i = 0;
 
-		className = " " + selector + " ";
+		clasSubCourseName = " " + selector + " ";
 		while ( ( elem = this[ i++ ] ) ) {
 			if ( elem.nodeType === 1 &&
-				( " " + stripAndCollapse( getClass( elem ) ) + " " ).indexOf( className ) > -1 ) {
+				( " " + stripAndCollapse( getClass( elem ) ) + " " ).indexOf( clasSubCourseName ) > -1 ) {
 				return true;
 			}
 		}

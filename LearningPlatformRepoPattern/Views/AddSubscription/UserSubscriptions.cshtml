@@ -1,0 +1,88 @@
+﻿@model IEnumerable<LearningPlatformRepoPattern.Models.Subscriptions>
+
+@{
+    ViewData["Title"] = "Available Subscriptions";
+}
+
+<h1>Available Subscriptions</h1>
+
+<div class="container">
+
+    <div class="row">
+
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4">
+
+                <div class="card"
+                     style="width: 18rem; margin-bottom: 25px;">
+
+                    @if (!string.IsNullOrEmpty(item.subThumbnail))
+                    {
+                        <img src="@item.subThumbnail"
+                             class="card-img-top"
+                             alt="@item.sub_type"
+                             width="200"
+                             height="120" />
+                    }
+
+                    <div class="card-body">
+
+                        <!-- Subscription Type -->
+
+                        <h2 class="card-title">
+                            @item.sub_type
+                        </h2>
+
+                        <p class="card-text">
+
+                            <strong>
+                                Master Course:
+                            </strong>
+
+                            @item.MasterCourse?.CourseName
+
+                            <br />
+
+                            <strong>
+                                Sub Master Course:
+                            </strong>
+
+                            @foreach (var subCourse
+                                     in item.SubscriptionSubCourses)
+                            {
+                                @subCourse.SubCourse?.SubCourseName
+                                <br />
+                            }
+
+                            <br />
+
+                            <strong>
+                                Amount:
+                            </strong>
+
+                            ₹@item.sub_amount
+
+                        </p>
+
+                        <!-- Buy -->
+
+                        <a asp-controller="AddSubscription"
+                           asp-action="BuySubscription"
+                           asp-route-id="@item.sub_id"
+                           class="btn btn-primary">
+
+                            Buy Now
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>

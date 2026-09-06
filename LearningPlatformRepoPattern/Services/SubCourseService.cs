@@ -26,7 +26,7 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             subCourse.CreatedAt = DateTime.Now;
-            subCourse.CreatedBy = string.IsNullOrEmpty(createdBy) ? "admin" : createdBy;
+            subCourse.CreatedBy = string.IsNullOrEmpty(createdBy) ? " " : createdBy;
 
             _context.SubCourses.Add(subCourse);
             _context.SaveChanges();

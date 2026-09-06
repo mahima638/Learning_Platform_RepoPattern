@@ -44,7 +44,7 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             course.CreatedAt = DateTime.Now;
-            course.CreatedBy = string.IsNullOrEmpty(createdBy) ? " " : createdBy;
+            course.CreatedBy = string.IsNullOrEmpty(createdBy) ? "" : createdBy;
 
             _context.MasterCourses.Add(course);
             _context.SaveChanges();

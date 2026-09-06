@@ -1,7 +1,14 @@
 using LearnigAppMVCCore.Data;
+using LearnigAppMVCCore.Interfaces;
+using LearnigAppMVCCore.Repositories;
+using LearnigAppMVCCore.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+
+
 
 // Add MVC services
 builder.Services.AddControllersWithViews();
@@ -11,6 +18,10 @@ builder.Services.AddDbContext<SubscriptionContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("db")
     ));
+
+// Register Repository and Service
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<IHomeService, HomeService>();
 
 var app = builder.Build();
 

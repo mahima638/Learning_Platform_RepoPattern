@@ -1,10 +1,8 @@
-using LearnigAppMVCCore.Data;
+using LearnigAppMVCCore.Interfaces;
 using LearnigAppMVCCore.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Razorpay.Api;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,68 +12,39 @@ namespace LearnigAppMVCCore.Controllers
     public class HomeController : Controller
     {
         // Razorpay API Credentials
-        // IMPORTANT: Move these to appsettings.json later.
+        // IMPORTANT: Move these to appsettings.json / User Secrets.
         private readonly string keyId = "rzp_test_Kl7588Yie2yJTV";
         private readonly string razorpayKeySecret = "6dN9Nqs7M6HPFMlL45AhaTgp";
 
-        private readonly SubscriptionContext db;
+        private readonly IHomeService _homeService;
         private readonly IWebHostEnvironment environment;
 
-        public HomeController( SubscriptionContext context, IWebHostEnvironment environment)
+        public HomeController( IHomeService homeService, IWebHostEnvironment environment)
         {
-            db = context;
-            this.environment = environment;
+            _homeService = homeService; this.environment = environment;
         }
 
         // GET: Home
         public IActionResult Index()
         {
-            ViewBag.MasterCourses = new SelectList(
-                db.MasterCourses
-                    .Where(x => x.mstatus == "Active")
-                    .ToList(),
-                "mid",
-                "mname"
-            );
-
-            var data = db.Subscriptions
-                .Include(x => x.MasterCourse)
-                .Include(x => x.SubscriptionSubCourses)
-                    .ThenInclude(x => x.SubCourse)
-                .ToList();
-
+            ViewBag.MasterCourses = new SelectList( _homeService.GetActiveMasterCourses(), "mid", "mname");
+            var data = _homeService.GetSubscriptions();
             return View(data);
         }
 
         // Get Sub Courses based on Master Course
         public IActionResult GetSubCourses(int mid)
         {
-            var data = db.SubCourses
-                .Where(x => x.mid == mid && x.sstatus == "Active")
-                .Select(x => new
-                {
-                    sid = x.sid,
-                    sname = x.sname
-                })
-                .ToList();
-
+            var data = _homeService.GetSubCourses(mid) .Select(x => new {  sid = x.sid, sname = x.sname }) .ToList();
             return Json(data);
         }
 
         // GET: Modal
         public IActionResult Modal(int? mid)
         {
-            var masterCourses = db.MasterCourses
-                .Where(x => x.mstatus == "Active")
-                .ToList();
+            var masterCourses = _homeService.GetActiveMasterCourses();
 
-            ViewBag.MasterCourses = new SelectList(
-                masterCourses,
-                "mid",
-                "mname",
-                mid
-            );
-
+            ViewBag.MasterCourses = new SelectList( masterCourses, "mid", "mname",  mid   );
             return View();
         }
 
@@ -89,8 +58,9 @@ namespace LearnigAppMVCCore.Controllers
                 Request.Form["sid"].ToArray();
 
             // Check duplicate subscription type
-            bool alreadyExists = db.Subscriptions
-                .Any(x => x.sub_type == s.sub_type);
+            bool alreadyExists =
+                _homeService.GetSubscriptions()
+                    .Any(x => x.sub_type == s.sub_type);
 
             if (alreadyExists)
             {
@@ -121,27 +91,32 @@ namespace LearnigAppMVCCore.Controllers
                     }
 
                     string fileName =
-                        Path.GetFileName(ThumbnailFile.FileName);
+                        Path.GetFileName(
+                            ThumbnailFile.FileName);
 
                     string filePath =
-                        Path.Combine(folderPath, fileName);
+                        Path.Combine(
+                            folderPath,
+                            fileName);
 
                     using (var stream =
-                           new FileStream(filePath, FileMode.Create))
+                           new FileStream(
+                               filePath,
+                               FileMode.Create))
                     {
                         await ThumbnailFile.CopyToAsync(stream);
                     }
 
                     s.subThumbnail =
-                        "/Uploads/Subscriptions/" + fileName;
+                        "/Uploads/Subscriptions/" +
+                        fileName;
                 }
 
                 // =========================
                 // Save Subscription
                 // =========================
 
-                db.Subscriptions.Add(s);
-                await db.SaveChangesAsync();
+                await _homeService.AddSubscriptionAsync(s);
 
                 // =========================
                 // Save Selected Sub Courses
@@ -157,10 +132,9 @@ namespace LearnigAppMVCCore.Controllers
                         obj.sub_id = s.sub_id;
                         obj.sid = Convert.ToInt32(sid);
 
-                        db.SubscriptionSubCourses.Add(obj);
+                        await _homeService
+                            .AddSubscriptionSubCourseAsync(obj);
                     }
-
-                    await db.SaveChangesAsync();
                 }
 
                 TempData["InsertMessage"] =
@@ -173,9 +147,8 @@ namespace LearnigAppMVCCore.Controllers
             // Validation Failed
             // =========================
 
-            var masterCourses = db.MasterCourses
-                .Where(x => x.mstatus == "Active")
-                .ToList();
+            var masterCourses =
+                _homeService.GetActiveMasterCourses();
 
             ViewBag.MasterCourses = new SelectList(
                 masterCourses,
@@ -186,11 +159,8 @@ namespace LearnigAppMVCCore.Controllers
 
             ViewBag.OpenModal = true;
 
-            var data = db.Subscriptions
-                .Include(x => x.MasterCourse)
-                .Include(x => x.SubscriptionSubCourses)
-                    .ThenInclude(x => x.SubCourse)
-                .ToList();
+            var data =
+                _homeService.GetSubscriptions();
 
             return View("Index", data);
         }
@@ -198,20 +168,16 @@ namespace LearnigAppMVCCore.Controllers
         // GET: Edit
         public IActionResult Edit(int id)
         {
-            var row = db.Subscriptions
-                .Include(x => x.MasterCourse)
-                .Include(x => x.SubscriptionSubCourses)
-                    .ThenInclude(x => x.SubCourse)
-                .FirstOrDefault(x => x.sub_id == id);
+            var row =
+                _homeService.GetSubscriptionById(id);
 
             if (row == null)
             {
                 return NotFound();
             }
 
-            var masterCourses = db.MasterCourses
-                .Where(x => x.mstatus == "Active")
-                .ToList();
+            var masterCourses =
+                _homeService.GetActiveMasterCourses();
 
             ViewBag.MasterCourses = new SelectList(
                 masterCourses,
@@ -227,17 +193,17 @@ namespace LearnigAppMVCCore.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
-      Subscriptions s,
-      IFormFile ThumbnailFile)
+            Subscriptions s,
+            IFormFile ThumbnailFile)
         {
             var selectedSubCourses =
                 Request.Form["sid"].ToArray();
 
             if (ModelState.IsValid)
             {
-                // Get existing subscription from database
-                var existingSubscription = await db.Subscriptions
-                    .FirstOrDefaultAsync(x => x.sub_id == s.sub_id);
+                // Get existing subscription
+                var existingSubscription =
+                    _homeService.GetSubscriptionById(s.sub_id);
 
                 if (existingSubscription == null)
                 {
@@ -248,11 +214,17 @@ namespace LearnigAppMVCCore.Controllers
                 // Update Subscription Details
                 // =========================
 
-                existingSubscription.sub_type = s.sub_type;
-                existingSubscription.mid = s.mid;
-                existingSubscription.sub_amount = s.sub_amount;
-                existingSubscription.subStatus = s.subStatus;
+                existingSubscription.sub_type =
+                    s.sub_type;
 
+                existingSubscription.mid =
+                    s.mid;
+
+                existingSubscription.sub_amount =
+                    s.sub_amount;
+
+                existingSubscription.subStatus =
+                    s.subStatus;
 
                 // =========================
                 // Save New Thumbnail
@@ -273,41 +245,42 @@ namespace LearnigAppMVCCore.Controllers
                     }
 
                     string fileName =
-                        Path.GetFileName(ThumbnailFile.FileName);
+                        Path.GetFileName(
+                            ThumbnailFile.FileName);
 
                     string filePath =
-                        Path.Combine(folderPath, fileName);
+                        Path.Combine(
+                            folderPath,
+                            fileName);
 
                     using (var stream =
-                           new FileStream(filePath, FileMode.Create))
+                           new FileStream(
+                               filePath,
+                               FileMode.Create))
                     {
                         await ThumbnailFile.CopyToAsync(stream);
                     }
 
                     existingSubscription.subThumbnail =
-                        "/Uploads/Subscriptions/" + fileName;
+                        "/Uploads/Subscriptions/" +
+                        fileName;
                 }
 
                 // =========================
-                // Save Subscription
+                // Update Subscription
                 // =========================
 
-                await db.SaveChangesAsync();
-
+                await _homeService
+                    .UpdateSubscriptionAsync(
+                        existingSubscription);
 
                 // =========================
                 // Remove Old Sub Courses
                 // =========================
 
-                var oldSubCourses =
-                    db.SubscriptionSubCourses
-                        .Where(x => x.sub_id == s.sub_id)
-                        .ToList();
-
-                db.SubscriptionSubCourses.RemoveRange(oldSubCourses);
-
-                await db.SaveChangesAsync();
-
+                await _homeService
+                    .RemoveSubscriptionSubCoursesAsync(
+                        s.sub_id);
 
                 // =========================
                 // Add New Sub Courses
@@ -323,12 +296,10 @@ namespace LearnigAppMVCCore.Controllers
                         obj.sub_id = s.sub_id;
                         obj.sid = Convert.ToInt32(sid);
 
-                        db.SubscriptionSubCourses.Add(obj);
+                        await _homeService
+                            .AddSubscriptionSubCourseAsync(obj);
                     }
-
-                    await db.SaveChangesAsync();
                 }
-
 
                 TempData["UpdateMessage"] =
                     "Data Updated";
@@ -336,15 +307,12 @@ namespace LearnigAppMVCCore.Controllers
                 return RedirectToAction("Index");
             }
 
-
             // =========================
             // Validation Failed
             // =========================
 
             ViewBag.MasterCourses = new SelectList(
-                db.MasterCourses
-                    .Where(x => x.mstatus == "Active")
-                    .ToList(),
+                _homeService.GetActiveMasterCourses(),
                 "mid",
                 "mname",
                 s.mid
@@ -356,8 +324,8 @@ namespace LearnigAppMVCCore.Controllers
         // GET: Delete
         public IActionResult Delete(int id)
         {
-            var subIdRow = db.Subscriptions
-                .FirstOrDefault(x => x.sub_id == id);
+            var subIdRow =
+                _homeService.GetSubscriptionById(id);
 
             if (subIdRow == null)
             {
@@ -369,20 +337,16 @@ namespace LearnigAppMVCCore.Controllers
 
         // POST: Delete
         [HttpPost]
-        public async Task<IActionResult> Delete(Subscriptions s)
+        public async Task<IActionResult> Delete(
+            Subscriptions s)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(s).State =
-                    EntityState.Deleted;
+                await _homeService
+                    .DeleteSubscriptionAsync(s.sub_id);
 
-                int a = await db.SaveChangesAsync();
-
-                if (a > 0)
-                {
-                    TempData["DeleteMessage"] =
-                        "Data Deleted";
-                }
+                TempData["DeleteMessage"] =
+                    "Data Deleted";
 
                 return RedirectToAction("Index");
             }
@@ -393,9 +357,10 @@ namespace LearnigAppMVCCore.Controllers
         // User Subscriptions
         public IActionResult UserSubscriptions()
         {
-            var subscriptions = db.Subscriptions
-                .Where(x => x.subStatus == "Active")
-                .ToList();
+            var subscriptions =
+                _homeService.GetSubscriptions()
+                    .Where(x => x.subStatus == "Active")
+                    .ToList();
 
             return View(subscriptions);
         }
@@ -415,8 +380,8 @@ namespace LearnigAppMVCCore.Controllers
             */
 
             // Get subscription
-            var subscription = db.Subscriptions
-                .FirstOrDefault(x => x.sub_id == id);
+            var subscription =
+                _homeService.GetSubscriptionById(id);
 
             if (subscription == null)
             {
@@ -431,7 +396,8 @@ namespace LearnigAppMVCCore.Controllers
                 );
 
             // Amount in rupees
-            double amount = subscription.sub_amount;
+            double amount =
+                subscription.sub_amount;
 
             // Razorpay amount must be in paise
             int amountInPaise =
@@ -440,13 +406,22 @@ namespace LearnigAppMVCCore.Controllers
             Dictionary<string, object> options =
                 new Dictionary<string, object>();
 
-            options.Add("amount", amountInPaise);
-            options.Add("currency", "INR");
+            options.Add(
+                "amount",
+                amountInPaise);
+
+            options.Add(
+                "currency",
+                "INR");
+
             options.Add(
                 "receipt",
-                "subscription_" + subscription.sub_id
-            );
-            options.Add("payment_capture", 1);
+                "subscription_" +
+                subscription.sub_id);
+
+            options.Add(
+                "payment_capture",
+                1);
 
             // Create Razorpay order
             Razorpay.Api.Order order =

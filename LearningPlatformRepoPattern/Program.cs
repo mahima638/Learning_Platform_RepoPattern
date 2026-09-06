@@ -15,6 +15,8 @@ builder.Services.AddSession();
 
 // User Repository
 builder.Services.AddScoped<IUserRepository, UserService>();
+builder.Services.AddScoped<ITopicRepository, TopicService>();
+builder.Services.AddScoped<IMaterialRepository, MaterialService>();
 
 // Master Course
 builder.Services.AddScoped<IMasterCourseRepository, MasterCourseService>();

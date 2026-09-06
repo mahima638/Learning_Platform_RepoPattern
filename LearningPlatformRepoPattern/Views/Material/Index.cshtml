@@ -1,0 +1,1657 @@
+﻿@model List<LearningPlatformRepoPattern.Models.Material>
+
+@{
+    ViewData["Title"] = "Material";
+}
+
+<div class="container mt-4">
+
+    <!--page header -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>
+                Material
+            </h2>
+
+            <p class="text-muted">
+                Manage course materials and MCQ questions.
+            </p>
+
+        </div>
+
+
+        <button type="button"
+                class="btn btn-primary"
+                onclick="openAddModal()">
+
+            Add Material
+
+        </button>
+
+    </div>
+
+
+    <!-- search -->
+
+    <div class="mb-4">
+
+        <input type="text"
+               id="searchMaterial"
+               class="form-control"
+               placeholder="Search material..."
+               style="max-width:350px;" />
+
+    </div>
+
+
+    <!-- material table -->
+
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-striped"
+               id="materialTable">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th style="width:60px;">
+                        #
+                    </th>
+
+                    <th>
+                        Master Course
+                    </th>
+
+                    <th>
+                        Sub Course
+                    </th>
+
+                    <th>
+                        Topic
+                    </th>
+
+                    <th>
+                        Assignment
+                    </th>
+
+                    <th>
+                        MCQ
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                @{
+                    int rowNumber = 1;
+                }
+
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @rowNumber
+                        </td>
+
+
+                        <td>
+                            @item.MasterCourse?.CourseName
+                        </td>
+
+
+                        <td>
+                            @item.SubCourse?.SubCourseName
+                        </td>
+
+
+                        <td>
+                            @item.Topic?.TopicName
+                        </td>
+
+
+                        <td>
+
+                            @if (!string.IsNullOrEmpty(item.Assignment))
+                            {
+                                <a href="@item.Assignment"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    View Assignment
+
+                                </a>
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            @(item.Mcqs?.Count ?? 0)
+                            Questions
+
+                        </td>
+
+
+                        <td>
+
+                            <button type="button"
+                                    class="btn btn-warning btn-sm"
+                                    onclick="openEditModal(@item.Id)">
+
+                                Edit
+
+                            </button>
+
+
+                            <form asp-action="Delete"
+                                  method="post"
+                                  style="display:inline;">
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@item.Id" />
+
+
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to delete this Material?');">
+
+                                    Delete
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+
+                    rowNumber++;
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<!-- material modal -->
+
+<div class="modal fade"
+     id="materialModal"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+
+            <form id="materialForm"
+                  method="post"
+                  enctype="multipart/form-data">
+
+
+                <!-- modal header -->
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title"
+                        id="materialModalTitle">
+
+                        Add Material
+
+                    </h5>
+
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <!-- modal body -->
+
+                <div class="modal-body"
+                     id="materialModalBody">
+
+
+                    <!-- information material  -->
+
+                    <div class="card mb-4">
+
+                        <div class="card-header">
+
+                            <strong>
+                                Material Information
+                            </strong>
+
+                        </div>
+
+
+                        <div class="card-body">
+
+
+                            <input type="hidden"
+                                   id="Id"
+                                   name="Id"
+                                   value="0" />
+
+
+                            <div class="row">
+
+
+                                <!-- MASTER COURSE -->
+
+                                <div class="col-md-4 mb-3">
+
+                                    <label class="form-label">
+                                        Master Course
+                                    </label>
+
+
+                                    <select id="MasterCourseId"
+                                            name="MasterCourseId"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Select Master Course
+                                        </option>
+
+
+                                        @foreach (var course in ViewBag.MasterCourseList)
+                                        {
+                                            <option value="@course.Value">
+                                                @course.Text
+                                            </option>
+                                        }
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- SUB COURSE -->
+
+                                <div class="col-md-4 mb-3">
+
+                                    <label class="form-label">
+                                        Sub Course
+                                    </label>
+
+
+                                    <select id="SubCourseId"
+                                            name="SubCourseId"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Select Sub Course
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- TOPIC -->
+
+                                <div class="col-md-4 mb-3">
+
+                                    <label class="form-label">
+                                        Topic
+                                    </label>
+
+
+                                    <select id="TopicId"
+                                            name="TopicId"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Select Topic
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- ASSIGNMENT -->
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Assignment Attachment
+                                </label>
+
+
+                                <input type="file"
+                                       id="assignmentFile"
+                                       name="assignmentFile"
+                                       class="form-control" />
+
+
+                                <div id="currentAssignment"
+                                     class="mt-2">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- MCQ -->
+
+                    <div class="card"
+                         id="mcqSection">
+
+
+                        <div class="card-header d-flex justify-content-between align-items-center">
+
+                            <strong>
+                                MCQ Questions
+                            </strong>
+
+
+                            <button type="button"
+                                    id="addMcqButton"
+                                    class="btn btn-primary btn-sm"
+                                    onclick="addMcq()">
+
+                                Add Question
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="card-body"
+                             id="mcqContainer">
+
+
+                            <div id="noMcqMessage"
+                                 class="text-center text-muted">
+
+                                No questions added.
+                                Click "Add Question" to add an MCQ.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- modal footer -->
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+
+                    <button type="submit"
+                            id="saveMaterialButton"
+                            class="btn btn-primary"
+                            disabled>
+
+                        Save Material
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts
+{
+
+    <style>
+
+
+        #materialModal .modal-body {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        #materialModal .mcq-item {
+            scroll-margin-top: 20px;
+        }
+
+    </style>
+
+
+    <script>
+
+        var mcqCount = 0;
+
+
+        // add modal
+
+        function openAddModal() {
+
+            $("#materialModalTitle")
+                .text("Add Material");
+
+
+            $("#materialForm")
+                .attr("action", "/Material/Add");
+
+
+            $("#Id")
+                .val(0);
+
+
+            $("#MasterCourseId")
+                .val("");
+
+
+            $("#SubCourseId")
+                .html(
+                    '<option value="">Select Sub Course</option>'
+                );
+
+
+            $("#TopicId")
+                .html(
+                    '<option value="">Select Topic</option>'
+                );
+
+
+            $("#assignmentFile")
+                .val("");
+
+
+            $("#currentAssignment")
+                .html("");
+
+
+            $("#mcqContainer")
+                .html(
+                    '<div id="noMcqMessage" class="text-center text-muted">' +
+                    'No questions added. Click "Add Question" to add an MCQ.' +
+                    '</div>'
+                );
+
+
+            mcqCount = 0;
+
+
+            updateMcqButton();
+
+
+            $("#materialModal")
+                .modal("show");
+
+
+
+            setTimeout(function() {
+
+                $("#materialModalBody")
+                    .scrollTop(0);
+
+            }, 300);
+
+        }
+
+
+
+       //master course change
+
+        $("#MasterCourseId").change(function() {
+
+            var masterCourseId =
+                $(this).val();
+
+
+            $("#SubCourseId")
+                .html(
+                    '<option value="">Select Sub Course</option>'
+                );
+
+
+            $("#TopicId")
+                .html(
+                    '<option value="">Select Topic</option>'
+                );
+
+
+            if (masterCourseId === "") {
+
+                return;
+
+            }
+
+
+            $.get(
+                "/Material/GetSubCourses",
+                {
+                    masterCourseId:
+                        masterCourseId
+                },
+                function(data) {
+
+                    $.each(
+                        data,
+                        function(i, item) {
+
+                            $("#SubCourseId")
+                                .append(
+                                    '<option value="' +
+                                    item.id +
+                                    '">' +
+                                    item.name +
+                                    '</option>'
+                                );
+
+                        }
+                    );
+
+                }
+            );
+
+        });
+
+
+
+        //sub course change
+
+        $("#SubCourseId").change(function() {
+
+            var subCourseId =
+                $(this).val();
+
+
+            $("#TopicId")
+                .html(
+                    '<option value="">Select Topic</option>'
+                );
+
+
+            if (subCourseId === "") {
+
+                return;
+
+            }
+
+
+            $.get(
+                "/Material/GetTopics",
+                {
+                    subCourseId:
+                        subCourseId
+                },
+                function(data) {
+
+                    $.each(
+                        data,
+                        function(i, item) {
+
+                            $("#TopicId")
+                                .append(
+                                    '<option value="' +
+                                    item.id +
+                                    '">' +
+                                    item.name +
+                                    '</option>'
+                                );
+
+                        }
+                    );
+
+                }
+            );
+
+        });
+
+
+
+   //add mcq
+
+        function addMcq() {
+
+            if (mcqCount >= 3) {
+
+                return;
+
+            }
+
+
+            $("#noMcqMessage")
+                .remove();
+
+
+            var index =
+                $(".mcq-item").length;
+
+
+            mcqCount =
+                index + 1;
+
+
+            var questionNumber =
+                mcqCount;
+
+
+            var html = `
+
+                        <div class="mcq-item border rounded p-3 mb-3"
+                             data-index="${index}"
+                             id="mcq-${index}">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                <h6 class="mb-0">
+                                    Question ${questionNumber}
+                                </h6>
+
+
+                                <button type="button"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="removeMcq(this)">
+
+                                    Remove
+
+                                </button>
+
+                            </div>
+
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Question
+                                </label>
+
+                                <input type="text"
+                                       name="mcqs[${index}].Question"
+                                       class="form-control"
+                                       required />
+
+                            </div>
+
+
+                            <div class="row">
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Option 1
+                                    </label>
+
+                                    <input type="text"
+                                           name="mcqs[${index}].Option1"
+                                           class="form-control"
+                                           required />
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Option 2
+                                    </label>
+
+                                    <input type="text"
+                                           name="mcqs[${index}].Option2"
+                                           class="form-control"
+                                           required />
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Option 3
+                                    </label>
+
+                                    <input type="text"
+                                           name="mcqs[${index}].Option3"
+                                           class="form-control"
+                                           required />
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Option 4
+                                    </label>
+
+                                    <input type="text"
+                                           name="mcqs[${index}].Option4"
+                                           class="form-control"
+                                           required />
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="mb-2">
+
+                                <label class="form-label">
+                                    Answer
+                                </label>
+
+
+                                <select name="mcqs[${index}].Answer"
+                                        class="form-select mcq-answer"
+                                        required>
+
+                                    <option value="">
+                                        Select Correct Answer
+                                    </option>
+
+                                    <option value="Option 1">
+                                        Option 1
+                                    </option>
+
+                                    <option value="Option 2">
+                                        Option 2
+                                    </option>
+
+                                    <option value="Option 3">
+                                        Option 3
+                                    </option>
+
+                                    <option value="Option 4">
+                                        Option 4
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+
+            $("#mcqContainer")
+                .append(html);
+
+
+            updateMcqButton();
+
+
+            scrollToMcq(index);
+
+        }
+
+
+
+        //remove/delete mcq
+
+        function removeMcq(button) {
+
+            $(button)
+                .closest(".mcq-item")
+                .remove();
+
+
+            renumberMcqs();
+
+
+            updateMcqButton();
+
+        }
+
+
+
+        //renumber mcq
+
+        function renumberMcqs() {
+
+            var index = 0;
+
+
+            $(".mcq-item")
+                .each(function() {
+
+                    var item =
+                        $(this);
+
+
+                    item.attr(
+                        "data-index",
+                        index
+                    );
+
+
+                    item.attr(
+                        "id",
+                        "mcq-" + index
+                    );
+
+
+                    item.find("h6")
+                        .text(
+                            "Question " +
+                            (index + 1)
+                        );
+
+
+                    item.find(
+                        'input[name$=".Question"]'
+                    )
+                        .attr(
+                            "name",
+                            "mcqs[" +
+                            index +
+                            "].Question"
+                        );
+
+
+                    item.find(
+                        'input[name$=".Option1"]'
+                    )
+                        .attr(
+                            "name",
+                            "mcqs[" +
+                            index +
+                            "].Option1"
+                        );
+
+
+                    item.find(
+                        'input[name$=".Option2"]'
+                    )
+                        .attr(
+                            "name",
+                            "mcqs[" +
+                            index +
+                            "].Option2"
+                        );
+
+
+                    item.find(
+                        'input[name$=".Option3"]'
+                    )
+                        .attr(
+                            "name",
+                            "mcqs[" +
+                            index +
+                            "].Option3"
+                        );
+
+
+                    item.find(
+                        'input[name$=".Option4"]'
+                    )
+                        .attr(
+                            "name",
+                            "mcqs[" +
+                            index +
+                            "].Option4"
+                        );
+
+
+                    item.find(
+                        'select[name$=".Answer"]'
+                    )
+                        .attr(
+                            "name",
+                            "mcqs[" +
+                            index +
+                            "].Answer"
+                        );
+
+
+                    index++;
+
+                });
+
+
+            mcqCount =
+                $(".mcq-item").length;
+
+
+            if (mcqCount === 0) {
+
+                $("#mcqContainer")
+                    .html(
+                        '<div id="noMcqMessage" class="text-center text-muted">' +
+                        'No questions added. Click "Add Question" to add an MCQ.' +
+                        '</div>'
+                    );
+
+            }
+
+        }
+
+
+
+       //update mcq button
+
+        function updateMcqButton() {
+
+            mcqCount =
+                $(".mcq-item").length;
+
+
+            if (mcqCount >= 3) {
+
+                $("#addMcqButton")
+                    .prop("disabled", true)
+                    .text("Maximum 3 Questions");
+
+            }
+            else {
+
+                $("#addMcqButton")
+                    .prop("disabled", false)
+                    .text("Add Question");
+
+            }
+
+
+           
+
+            if (mcqCount === 3) {
+
+                $("#saveMaterialButton")
+                    .prop("disabled", false);
+
+            }
+            else {
+
+                $("#saveMaterialButton")
+                    .prop("disabled", true);
+
+            }
+
+        }
+
+
+
+       //scroll for new mcq
+
+        function scrollToMcq(index) {
+
+            setTimeout(function() {
+
+                var question =
+                    document.getElementById(
+                        "mcq-" + index
+                    );
+
+
+                if (question) {
+
+                    question.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+
+            }, 300);
+
+        }
+
+
+//edit material
+
+        function openEditModal(id) {
+
+            $.get(
+                "/Material/GetById",
+                {
+                    id: id
+                },
+                function(data) {
+
+                    if (!data) {
+
+                        alert(
+                            "Unable to load material."
+                        );
+
+                        return;
+
+                    }
+
+
+                    $("#materialModalTitle")
+                        .text("Edit Material");
+
+
+                    $("#materialForm")
+                        .attr(
+                            "action",
+                            "/Material/Edit"
+                        );
+
+
+                    $("#Id")
+                        .val(data.id);
+
+
+                    $("#MasterCourseId")
+                        .val(
+                            data.masterCourseId
+                        );
+
+
+                   //reset subcourse
+
+                    $("#SubCourseId")
+                        .html(
+                            '<option value="">Select Sub Course</option>'
+                        );
+
+
+
+                    $.get(
+                        "/Material/GetSubCourses",
+                        {
+                            masterCourseId:
+                                data.masterCourseId
+                        },
+                        function(subCourses) {
+
+                            $.each(
+                                subCourses,
+                                function(i, item) {
+
+                                    $("#SubCourseId")
+                                        .append(
+                                            '<option value="' +
+                                            item.id +
+                                            '">' +
+                                            item.name +
+                                            '</option>'
+                                        );
+
+                                }
+                            );
+
+
+                            $("#SubCourseId")
+                                .val(
+                                    data.subCourseId
+                                );
+
+
+                           //reset topic
+
+                            $("#TopicId")
+                                .html(
+                                    '<option value="">Select Topic</option>'
+                                );
+
+
+                            $.get(
+                                "/Material/GetTopics",
+                                {
+                                    subCourseId:
+                                        data.subCourseId
+                                },
+                                function(topics) {
+
+                                    $.each(
+                                        topics,
+                                        function(i, item) {
+
+                                            $("#TopicId")
+                                                .append(
+                                                    '<option value="' +
+                                                    item.id +
+                                                    '">' +
+                                                    item.name +
+                                                    '</option>'
+                                                );
+
+                                        }
+                                    );
+
+
+                                    $("#TopicId")
+                                        .val(
+                                            data.topicId
+                                        );
+
+                                }
+                            );
+
+                        }
+                    );
+
+
+                    $("#assignmentFile")
+                        .val("");
+
+
+                    if (data.assignment) {
+
+                        $("#currentAssignment")
+                            .html(
+                                '<a href="' +
+                                data.assignment +
+                                '" target="_blank" class="btn btn-sm btn-outline-primary">' +
+                                'View Assignment' +
+                                '</a>'
+                            );
+
+                    }
+                    else {
+
+                        $("#currentAssignment")
+                            .html("");
+
+                    }
+
+
+                    $("#mcqContainer")
+                        .html("");
+
+
+                    mcqCount = 0;
+
+
+                    if (
+                        data.mcqs &&
+                        data.mcqs.length > 0
+                    ) {
+
+                        $.each(
+                            data.mcqs,
+                            function(i, mcq) {
+
+                                addEditMcq(mcq);
+
+                            }
+                        );
+
+                    }
+                    else {
+
+                        $("#mcqContainer")
+                            .html(
+                                '<div id="noMcqMessage" class="text-center text-muted">' +
+                                'No questions added. Click "Add Question" to add an MCQ.' +
+                                '</div>'
+                            );
+
+                    }
+
+
+                    updateMcqButton();
+
+
+                    $("#materialModal")
+                        .modal("show");
+
+
+                    setTimeout(function() {
+
+                        $("#materialModalBody")
+                            .scrollTop(0);
+
+                    }, 300);
+
+                }
+            );
+
+        }
+
+
+//existing mcq
+        function addEditMcq(mcq) {
+
+            $("#noMcqMessage")
+                .remove();
+
+
+            var index =
+                $(".mcq-item").length;
+
+
+            mcqCount =
+                index + 1;
+
+
+            var answer =
+                mcq.answer || "";
+
+
+            var html = `
+
+                        <div class="mcq-item border rounded p-3 mb-3"
+                             data-index="${index}"
+                             id="mcq-${index}">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                <h6 class="mb-0">
+                                    Question ${mcqCount}
+                                </h6>
+
+
+                                <button type="button"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="removeMcq(this)">
+
+                                    Remove
+
+                                </button>
+
+                            </div>
+
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Question
+                                </label>
+
+
+                                <input type="text"
+                                       name="mcqs[${index}].Question"
+                                       class="form-control"
+                                       value="${escapeHtml(mcq.question)}"
+                                       required />
+
+                            </div>
+
+
+                            <div class="row">
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Option 1
+                                    </label>
+
+
+                                    <input type="text"
+                                           name="mcqs[${index}].Option1"
+                                           class="form-control"
+                                           value="${escapeHtml(mcq.option1)}"
+                                           required />
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Option 2
+                                    </label>
+
+
+                                    <input type="text"
+                                           name="mcqs[${index}].Option2"
+                                           class="form-control"
+                                           value="${escapeHtml(mcq.option2)}"
+                                           required />
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Option 3
+                                    </label>
+
+
+                                    <input type="text"
+                                           name="mcqs[${index}].Option3"
+                                           class="form-control"
+                                           value="${escapeHtml(mcq.option3)}"
+                                           required />
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Option 4
+                                    </label>
+
+
+                                    <input type="text"
+                                           name="mcqs[${index}].Option4"
+                                           class="form-control"
+                                           value="${escapeHtml(mcq.option4)}"
+                                           required />
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="mb-2">
+
+                                <label class="form-label">
+                                    Answer
+                                </label>
+
+
+                                <select name="mcqs[${index}].Answer"
+                                        class="form-select mcq-answer"
+                                        required>
+
+                                    <option value="">
+                                        Select Correct Answer
+                                    </option>
+
+
+                                    <option value="Option 1"
+                                            ${answer === "Option 1" ? "selected" : ""}>
+
+                                        Option 1
+
+                                    </option>
+
+
+                                    <option value="Option 2"
+                                            ${answer === "Option 2" ? "selected" : ""}>
+
+                                        Option 2
+
+                                    </option>
+
+
+                                    <option value="Option 3"
+                                            ${answer === "Option 3" ? "selected" : ""}>
+
+                                        Option 3
+
+                                    </option>
+
+
+                                    <option value="Option 4"
+                                            ${answer === "Option 4" ? "selected" : ""}>
+
+                                        Option 4
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+
+            $("#mcqContainer")
+                .append(html);
+
+        }
+
+
+
+        // =====================================================
+        // ESCAPE HTML
+        // =====================================================
+
+        function escapeHtml(value) {
+
+            if (value == null) {
+
+                return "";
+
+            }
+
+
+            return $("<div>")
+                .text(value)
+                .html();
+
+        }
+
+
+//search matrial
+
+        $("#searchMaterial").on(
+            "keyup",
+            function() {
+
+                var search =
+                    $(this)
+                        .val()
+                        .toLowerCase();
+
+
+                $("#materialTable tbody tr")
+                    .each(function() {
+
+                        var row =
+                            $(this);
+
+
+                        row.toggle(
+                            row.text()
+                                .toLowerCase()
+                                .indexOf(search) > -1
+                        );
+
+                    });
+
+            }
+        );
+
+
+        $("#materialForm").on(
+            "submit",
+            function(e) {
+
+                var masterCourse =
+                    $("#MasterCourseId")
+                        .val();
+
+
+                var subCourse =
+                    $("#SubCourseId")
+                        .val();
+
+
+                var topic =
+                    $("#TopicId")
+                        .val();
+
+
+                var materialId =
+                    $("#Id")
+                        .val();
+
+
+
+                if (!masterCourse) {
+
+                    e.preventDefault();
+
+                    alert(
+                        "Please select Master Course."
+                    );
+
+                    return false;
+
+                }
+
+
+
+                if (!subCourse) {
+
+                    e.preventDefault();
+
+                    alert(
+                        "Please select Sub Course."
+                    );
+
+                    return false;
+
+                }
+
+
+            
+
+                if (!topic) {
+
+                    e.preventDefault();
+
+                    alert(
+                        "Please select Topic."
+                    );
+
+                    return false;
+
+                }
+
+
+              
+
+                var questions =
+                    $(".mcq-item").length;
+
+
+                if (questions !== 3) {
+
+                    e.preventDefault();
+
+                    alert(
+                        "Please add exactly 3 MCQ questions before saving the material."
+                    );
+
+                    return false;
+
+                }
+
+
+              
+
+                if (
+                    materialId == "0" &&
+                    $("#assignmentFile")[0].files.length === 0
+                ) {
+
+                    e.preventDefault();
+
+                    alert(
+                        "Please select an Assignment file."
+                    );
+
+                    return false;
+
+                }
+
+
+          
+
+                var valid =
+                    true;
+
+
+                $(".mcq-item")
+                    .each(function() {
+
+                        $(this)
+                            .find("input, select")
+                            .each(function() {
+
+                                if (
+                                    !$(this).val() ||
+                                    $.trim($(this).val()) === ""
+                                ) {
+
+                                    valid = false;
+
+                                }
+
+                            });
+
+                    });
+
+
+                if (!valid) {
+
+                    e.preventDefault();
+
+                    alert(
+                        "Please complete all MCQ details."
+                    );
+
+                    return false;
+
+                }
+
+
+                return true;
+
+            }
+        );
+
+
+
+
+        @if (TempData["Message"] != null)
+            {
+                <text>
+
+                        alert(
+                        '@TempData["Message"]'
+                        );
+
+                </text>
+        }
+
+    </script>
+
+}

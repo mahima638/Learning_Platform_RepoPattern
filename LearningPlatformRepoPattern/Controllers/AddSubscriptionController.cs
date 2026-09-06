@@ -11,8 +11,7 @@ namespace LearningPlatformRepoPattern.Controllers
 {
     public class AddSubscriptionController : Controller
     {
-        // Razorpay API Credentials
-        // IMPORTANT: Move these to appsettings.json / User Secrets.
+        
         private readonly string keyId = "rzp_test_Kl7588Yie2yJTV";
         private readonly string razorpayKeySecret = "6dN9Nqs7M6HPFMlL45AhaTgp";
 

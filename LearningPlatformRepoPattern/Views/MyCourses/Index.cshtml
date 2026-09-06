@@ -77,19 +77,19 @@
                         <!-- Course Image -->
                         <img src="@Url.Content("~/" + (course.Mthumbnail ?? "").TrimStart('/'))"
                              class="course-image"
-                             alt="@course.Mname">
+                             alt=@course.CourseName>
 
                         <div class="card-body p-4">
 
                             <!-- Sub Course Name -->
                             <h5 class="course-title fw-bold mb-3">
-                                @course.Sname
+                                @course.SubCourseName
                             </h5>
 
                             <!-- Master Course -->
                             <p class="course-name mb-2">
                                 <strong>Course:</strong>
-                                @course.Mname
+                                @course.CourseName
                             </p>
 
                             <!-- Status -->

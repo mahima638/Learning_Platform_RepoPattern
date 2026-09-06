@@ -41,5 +41,6 @@ namespace LearningPlatformRepoPattern.Repository
         Task<CertificateViewModel> GetCertificate(
             int sid,
             int userId);
+        
     }
 }

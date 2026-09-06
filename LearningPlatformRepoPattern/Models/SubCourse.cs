@@ -13,7 +13,7 @@ namespace LearningPlatformRepoPattern.Models
         [Column("mid")]
         public int MasterCourseId { get; set; }
 
-        [Column("SubCourseName")]
+        [Column("sname")]
         public string SubCourseName { get; set; }
 
         [Column("sstatus")]

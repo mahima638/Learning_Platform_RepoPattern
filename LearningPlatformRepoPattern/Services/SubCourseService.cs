@@ -61,6 +61,22 @@ namespace LearningPlatformRepoPattern.Services
             return _context.SubCourses.Find(id);
         }
 
+        public List<SubCourse> GetByIds(List<int> ids)
+        {
+            return _context.SubCourses
+       .Include(c => c.MasterCourse)
+       .Where(c => ids.Contains(c.Id))
+       .ToList();
+        }
+
+        public List<SubCourse> GetByMasterCourseId(int masterCourseId)
+        {
+            return _context.SubCourses
+        .Include(s => s.MasterCourse)
+        .Where(s => s.MasterCourseId == masterCourseId)
+        .ToList();
+        }
+
         public string Update(SubCourse subCourse)
         {
             var existing = _context.SubCourses.Find(subCourse.Id);

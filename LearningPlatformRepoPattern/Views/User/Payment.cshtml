@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Payment";
+}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+    var options = {
+        "key": "@ViewBag.KeyId",
+        "amount": "@ViewBag.Amount",
+        "currency": "INR",
+        "name": "Learning Platform",
+        "description": "Course Purchase",
+        "order_id": "@ViewBag.OrderId",
+
+        "handler": function(response) {
+
+            window.parent.loadPage(
+                "/MyCourses/Index?userId=@ViewBag.UserId"
+            );
+        }
+    };
+
+    var rzp = new Razorpay(options);
+
+    window.onload = function() {
+        rzp.open();
+    };
+
+</script>

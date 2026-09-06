@@ -1,5 +1,6 @@
 ﻿using LearningPlatformRepoPattern.Models;
-using LearningPlatformRepoPattern.Repositories;
+
+using LearningPlatformRepoPattern.Repository;
 
 
 namespace LearningPlatformRepoPattern.Services

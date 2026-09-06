@@ -11,26 +11,39 @@
             <h4 class="mb-4">Admin Panel</h4>
 
             <div class="nav flex-column">
-                <a class="nav-link text-white" href="#" onclick="loadMasterCourse()">
+
+                <a class="nav-link text-white"
+                   href="javascript:void(0)"
+                   onclick="loadPage('/MasterCourse')">
                     Master Course
                 </a>
 
-                <a class="nav-link text-white" href="#" onclick="loadSubCourse()">
+                <a class="nav-link text-white"
+                   href="javascript:void(0)"
+                   onclick="loadPage('/SubCourse')">
                     Sub Course
                 </a>
 
-                <a class="nav-link text-white" href="#">
+                <a class="nav-link text-white"
+                   href="javascript:void(0)"
+                   onclick="loadPage('/Topic')">
                     Add Topic
                 </a>
 
-                <a class="nav-link text-white" href="#">
+                <a class="nav-link text-white"
+                   href="javascript:void(0)"
+                   onclick="loadPage('/Material')">
                     Add Material
                 </a>
 
-                <a class="nav-link text-white" href="#">
+                <a class="nav-link text-white"
+                   href="javascript:void(0)"
+                   onclick="loadPage('/AddSubscription')">
                     Add Subscription
                 </a>
-                <a asp-controller="Account"
+
+                <a class="nav-link text-white"
+                   asp-controller="Account"
                    asp-action="Logout">
                     Logout
                 </a>
@@ -57,13 +70,11 @@
     </div>
 </div>
 <script>
-    function loadMasterCourse() {
+
+    function loadPage(url) {
         document.getElementById("adminContent").innerHTML =
-            '<iframe src="/MasterCourse" style="width:100%; height:100vh; border:none;"></iframe>';
+            '<iframe src="' + url + '" ' +
+            'style="width:100%; height:100vh; border:none;"></iframe>';
     }
 
-    function loadSubCourse() {
-        document.getElementById("adminContent").innerHTML =
-            '<iframe src="/SubCourse" style="width:100%; height:100vh; border:none;"></iframe>';
-    }
 </script>

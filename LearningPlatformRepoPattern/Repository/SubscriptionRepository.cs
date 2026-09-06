@@ -3,7 +3,7 @@ using LearningPlatformRepoPattern.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace LearningPlatformRepoPattern.Repositories
+namespace LearningPlatformRepoPattern.Repository
 {
     public class SubscriptionRepository
     {

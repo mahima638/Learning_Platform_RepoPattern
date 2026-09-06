@@ -9,5 +9,7 @@ namespace LearningPlatformRepoPattern.Repository
         string Add(SubCourse subCourse, string createdBy);
         string Update(SubCourse subCourse);
         string Delete(int id);
+        List<SubCourse> GetByMasterCourseId(int masterCourseId);
+        List<SubCourse> GetByIds(List<int> ids);
     }
 }

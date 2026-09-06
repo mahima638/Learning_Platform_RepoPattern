@@ -31,7 +31,7 @@ namespace LearningPlatformRepoPattern.Services
                 SubCourseName = x.SubCourse.SubCourseName,
                 Sstatus = x.SubCourse.Status,
                 Samount = x.SubCourse.Amount,
-                Mname = x.SubCourse.MasterCourse.CourseName,
+                CourseName = x.SubCourse.MasterCourse.CourseName,
                 Mthumbnail = x.SubCourse.MasterCourse.ThumbnailPath
             }).ToList();
 
@@ -171,8 +171,8 @@ namespace LearningPlatformRepoPattern.Services
                 Sid = sid,
                 UserId = userId,
                 CurrentTopicId = currentTopicId,
-                Sname = subCourse.SubCourseName,
-                Mname = masterCourse.CourseName,
+                SubCourseName = subCourse.SubCourseName,
+                CourseName = masterCourse.CourseName,
                 Mthumbnail = masterCourse.ThumbnailPath,
 
                 TopicItems = topicItems,
@@ -509,5 +509,6 @@ namespace LearningPlatformRepoPattern.Services
 
             return model;
         }
+      
     }
 }

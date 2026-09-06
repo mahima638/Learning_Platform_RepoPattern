@@ -5,15 +5,23 @@ using LearningPlatformRepoPattern.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// MVC
 builder.Services.AddControllersWithViews();
 
+// Entity Framework Core
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
 
+// Session
 builder.Services.AddSession();
 
-// User Repository
+// ==========================================
+// Repository + Service registrations
+// ==========================================
+
+// User
 builder.Services.AddScoped<IUserRepository, UserService>();
 builder.Services.AddScoped<ITopicRepository, TopicService>();
 builder.Services.AddScoped<IMaterialRepository, MaterialService>();
@@ -27,7 +35,16 @@ builder.Services.AddScoped<ISubCourseRepository, SubCourseService>();
 // My Courses Repository and Service
 builder.Services.AddScoped<IMyCoursesRepository, MyCoursesService>();
 
+// Subscription
+builder.Services.AddScoped<SubscriptionRepository>();
+builder.Services.AddScoped<SubscriptionService>();
+
+
 var app = builder.Build();
+
+// ==========================================
+// HTTP Pipeline
+// ==========================================
 
 if (!app.Environment.IsDevelopment())
 {
@@ -37,17 +54,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseSession();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

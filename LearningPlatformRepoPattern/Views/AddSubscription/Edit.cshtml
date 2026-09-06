@@ -1,0 +1,297 @@
+﻿@model LearningPlatformRepoPattern.Models.Subscriptions
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit Subscription</h1>
+
+<style>
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    #SubCourseButton {
+        width: 180px;
+        height: 30px;
+        text-align: left;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid black;
+        width: 180px;
+        padding: 5px;
+        z-index: 1;
+    }
+
+        .dropdown-content label {
+            display: block;
+            padding: 5px;
+        }
+
+            .dropdown-content label:hover {
+                background-color: lightgray;
+            }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+</style>
+
+@if (ViewBag.UpdateMessage != null)
+{
+    @Html.Raw(ViewBag.UpdateMessage)
+}
+
+<form asp-controller="AddSubscription"
+      asp-action="Edit"
+      method="post"
+      enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+
+    <!-- Hidden ID -->
+
+    <input asp-for="sub_id" type="hidden" />
+
+    <!-- Subscription Name -->
+
+    <label asp-for="sub_type">
+        Subscription Name
+    </label>
+
+    <input asp-for="sub_type"
+           class="form-control" />
+
+    <span asp-validation-for="sub_type"
+          class="text-danger">
+    </span>
+
+    <br />
+    <br />
+
+    <!-- Master Course -->
+
+    <label asp-for="mid">
+        Master Course Name
+    </label>
+
+    <select asp-for="mid"
+            asp-items="ViewBag.MasterCourses"
+            id="MasterCourse"
+            class="form-control">
+
+        <option value="">
+            Select Master Course
+        </option>
+
+    </select>
+
+    <br />
+    <br />
+
+    <!-- Sub Course -->
+
+    <label>
+        Sub Course :
+    </label>
+
+    <div class="dropdown">
+
+        <button type="button"
+                id="SubCourseButton">
+
+            Select SubCourse ▼
+
+        </button>
+
+        <div id="SubCourse"
+             class="dropdown-content">
+        </div>
+
+    </div>
+
+    <br />
+    <br />
+
+    <!-- Amount -->
+
+    <label asp-for="sub_amount">
+        Amount
+    </label>
+
+    <input asp-for="sub_amount"
+           class="form-control" />
+
+    <span asp-validation-for="sub_amount"
+          class="text-danger">
+    </span>
+
+    <br />
+    <br />
+
+    <!-- Status -->
+
+    <label asp-for="subStatus">
+        Status
+    </label>
+
+    <select asp-for="subStatus"
+            class="form-control">
+
+        <option value="">
+            Select Status
+        </option>
+
+        <option value="Active">
+            Active
+        </option>
+
+        <option value="Inactive">
+            Inactive
+        </option>
+
+    </select>
+
+    <br />
+    <br />
+
+    <!-- Thumbnail -->
+
+    <div class="form-group">
+
+        <label>
+            Thumbnail
+        </label>
+
+        <input type="file"
+               name="ThumbnailFile"
+               accept="image/*"
+               class="form-control" />
+
+    </div>
+
+    <br />
+    <br />
+
+    <!-- Submit -->
+
+    <input type="submit"
+           value="Submit"
+           class="btn btn-primary" />
+
+    <br />
+    <br />
+
+    <!-- Back -->
+
+    <a asp-controller="AddSubscription"
+       asp-action="Index">
+
+        Back To List
+
+    </a>
+
+</form>
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+
+    $(document).ready(function() {
+
+        // Existing selected Sub Course IDs
+        var selectedIds = [
+                @foreach (var sub in Model.SubscriptionSubCourses)
+            {
+                @: @sub.sid,
+            }
+            ];
+
+        // Load Sub Courses when Edit page opens
+        loadSubCourses($("#MasterCourse").val());
+
+
+        // Load again if Master Course is changed
+        $("#MasterCourse").change(function() {
+
+            var mid = $(this).val();
+
+            // Master Course changed,
+            // so remove previous selections
+            selectedIds = [];
+
+            loadSubCourses(mid);
+
+        });
+
+
+        function loadSubCourses(mid) {
+
+            $("#SubCourse").empty();
+
+            if (mid == "") {
+                return;
+            }
+
+            $.ajax({
+
+                url: '@Url.Action("GetSubCourses", "AddSubscription")',
+
+                type: 'GET',
+
+                data: {
+                    mid: mid
+                },
+
+                success: function(data) {
+
+                    $.each(data, function(i, item) {
+
+                        var checked = "";
+
+                        if (selectedIds.indexOf(item.sid) !== -1) {
+                            checked = "checked";
+                        }
+                        $("#SubCourse").append(
+
+                            '<label>' +
+
+                            '<input type="checkbox" ' +
+                            'name="sid" ' +
+                            'value="' + item.sid + '" ' +
+                            checked + '>' +
+
+                            ' ' +
+
+                            item.subCourseName +
+
+                            '</label>'
+
+                        );
+
+                    });
+
+                },
+
+                error: function(xhr) {
+
+                    console.log(xhr.status);
+                    console.log(xhr.responseText);
+
+                    alert("Error loading Sub Courses");
+
+                }
+
+            });
+
+        }
+
+    });
+
+</script>

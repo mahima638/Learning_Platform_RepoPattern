@@ -1,0 +1,532 @@
+﻿@model IEnumerable<LearnigAppMVCCore.Models.Subscriptions>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    #SubCourseButton {
+        width: 180px;
+        height: 30px;
+        text-align: left;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid black;
+        width: 180px;
+        padding: 5px;
+        z-index: 1051;
+    }
+
+    .dropdown-content label {
+        display: block;
+        padding: 5px;
+    }
+
+    .dropdown-content label:hover {
+        background-color: lightgray;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    .search-container {
+        position: relative;
+    }
+
+    .search-input {
+        height: 50px;
+        border-radius: 30px;
+        padding-left: 35px;
+        border: none;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        color: #888;
+    }
+</style>
+
+<h1>Add Subscription</h1>
+
+@if (TempData["InsertMessage"] != null)
+{
+    <p style="color:green;">
+        @TempData["InsertMessage"]
+    </p>
+}
+
+@if (TempData["UpdatetMessage"] != null)
+{
+    <p style="color:green;">
+        @TempData["UpdatetMessage"]
+    </p>
+}
+
+@if (TempData["DeleteMessage"] != null)
+{
+    <p style="color:green;">
+        @TempData["DeleteMessage"]
+    </p>
+}
+
+<!-- Create New Button -->
+
+<button type="button"
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#subscriptionModal">
+    Create
+</button>
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="search-container">
+
+                <input type="text"
+                       id="searchSubType"
+                       class="form-control search-input"
+                       placeholder="Search Subscription...">
+
+                <i class="fas fa-search search-icon"></i>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+
+<!-- Subscription Table -->
+
+<table border="2">
+
+    <tr>
+
+        <th>ID</th>
+
+        <th>Sub Type</th>
+
+        <th>Master Course</th>
+
+        <th>Sub Master Course</th>
+
+        <th>Sub Amount</th>
+
+        <th>Status</th>
+
+        <th>Thumbnail</th>
+
+        <th>Action</th>
+
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr class="subscriptionRow"
+            data-subtype="@item.sub_type">
+
+            <td>
+                @item.sub_id
+            </td>
+
+            <td>
+                @item.sub_type
+            </td>
+
+            <td>
+                @item.MasterCourse?.mname
+            </td>
+
+            <td>
+
+                @foreach (var sub in item.SubscriptionSubCourses)
+                {
+                    @sub.SubCourse?.sname
+                    <br />
+                }
+
+            </td>
+
+            <td>
+                @item.sub_amount
+            </td>
+
+            <td>
+                @item.subStatus
+            </td>
+
+            <td>
+
+                @if (!string.IsNullOrEmpty(item.subThumbnail))
+                {
+                    <img src="@item.subThumbnail"
+                         alt="Thumbnail"
+                         width="100"
+                         height="70" />
+                }
+
+            </td>
+
+            <td>
+
+                <a asp-controller="Home"
+                   asp-action="Edit"
+                   asp-route-id="@item.sub_id">
+                    Edit
+                </a>
+
+                |
+
+                <a asp-controller="Home"
+                   asp-action="Delete"
+                   asp-route-id="@item.sub_id">
+                    Delete
+                </a>
+
+            </td>
+
+        </tr>
+    }
+
+</table>
+
+
+<!-- ================================================= -->
+<!-- Bootstrap Create Subscription Modal -->
+<!-- ================================================= -->
+
+<div class="modal fade"
+     id="subscriptionModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="subscriptionModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="subscriptionModalLabel">
+
+                    Add Subscription
+
+                </h5>
+
+                <button type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close">
+
+                    <span aria-hidden="true">
+                        &times;
+                    </span>
+
+                </button>
+
+            </div>
+
+            <!-- Modal Body -->
+
+            <div class="modal-body">
+
+                <form asp-controller="Home"
+                      asp-action="Modal"
+                      method="post"
+                      enctype="multipart/form-data">
+
+                    <!-- Subscription Name -->
+
+                    <div class="form-group">
+                        <label for="sub_type">
+                            Subscription Name
+                        </label>
+
+                        <input type="text"
+                               id="sub_type"
+                               name="sub_type"
+                               class="form-control" />
+                    </div>
+
+
+                    <!-- Master Course -->
+
+                    <div class="form-group">
+
+                        <label for="MasterCourse">
+                            Master Course Name
+                        </label>
+
+                        <select id="MasterCourse"
+                                name="mid"
+                                class="form-control">
+
+                            <option value="">
+                                Select Master Course
+                            </option>
+
+                            @if (ViewBag.MasterCourses != null)
+                            {
+                                foreach (var course in ViewBag.MasterCourses)
+                                {
+                                    <option value="@course.Value">
+                                        @course.Text
+                                    </option>
+                                }
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Sub Course -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Sub Course
+                        </label>
+
+                        <div class="dropdown">
+
+                            <button type="button"
+                                    id="SubCourseButton"
+                                    class="btn btn-secondary">
+
+                                Select SubCourse ▼
+
+                            </button>
+
+                            <div id="SubCourse"
+                                 class="dropdown-content">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Amount -->
+
+                    <div class="form-group">
+
+                        <label for="sub_amount">
+                            Amount
+                        </label>
+
+                        <input type="number"
+                               id="sub_amount"
+                               name="sub_amount"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <!-- Status -->
+
+                    <div class="form-group">
+
+                        <label for="subStatus">
+                            Status
+                        </label>
+
+                        <select id="subStatus"
+                                name="subStatus"
+                                class="form-control">
+
+                            <option value="">
+                                Select Status
+                            </option>
+
+                            <option value="Active">
+                                Active
+                            </option>
+
+                            <option value="Inactive">
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Thumbnail -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Thumbnail
+                        </label>
+
+                        <input type="file"
+                               name="ThumbnailFile"
+                               accept="image/*"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <!-- Modal Footer -->
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal">
+
+                            Close
+
+                        </button>
+
+                        <input type="submit"
+                               value="Add"
+                               class="btn btn-primary" />
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- jQuery -->
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+
+<!-- Sub Course AJAX -->
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#MasterCourse").change(function () {
+
+            var mid = $(this).val();
+
+            $("#SubCourse").empty();
+
+            if (mid != "") {
+
+                $.ajax({
+
+                    url: '@Url.Action("GetSubCourses", "Home")',
+
+                    type: 'GET',
+
+                    data: {
+                        mid: mid
+                    },
+
+                    success: function (data) {
+
+                        $.each(data, function (i, item) {
+
+                            $("#SubCourse").append(
+
+                                '<label>' +
+
+                                '<input type="checkbox" ' +
+                                'name="sid" ' +
+                                'value="' + item.sid + '">' +
+
+                                ' ' +
+
+                                item.sname +
+
+                                '</label>'
+
+                            );
+
+                        });
+
+                    },
+
+                    error: function (xhr) {
+
+                        console.log(xhr.responseText);
+
+                        alert("Error loading Sub Courses");
+
+                    }
+
+                });
+
+            }
+
+        });
+
+    });
+
+</script>
+
+
+<!-- Search -->
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#searchSubType").on("keyup", function () {
+
+            var searchValue =
+                $(this).val().toLowerCase();
+
+            $(".subscriptionRow").each(function () {
+
+                var subType =
+                    $(this)
+                        .attr("data-subtype")
+                        .toLowerCase();
+
+                if (subType.indexOf(searchValue) !== -1) {
+
+                    $(this).show();
+
+                }
+                else {
+
+                    $(this).hide();
+
+                }
+
+            });
+
+        });
+
+    });
+
+</script>

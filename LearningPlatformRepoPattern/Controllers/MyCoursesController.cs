@@ -14,10 +14,7 @@ namespace LearningPlatformRepoPattern.Controllers
             _service = service;
         }
 
-        // =====================================================
-        // MY COURSES
-        // =====================================================
-
+        //My courses
         public async Task<IActionResult> Index(int userId)
         {
             var courses = await _service.GetMyCourses(userId);
@@ -26,9 +23,7 @@ namespace LearningPlatformRepoPattern.Controllers
         }
 
 
-        // =====================================================
-        // WATCH VIDEO
-        // =====================================================
+       // watch video
 
         [HttpGet]
         public async Task<IActionResult> WatchVideo(
@@ -50,10 +45,7 @@ namespace LearningPlatformRepoPattern.Controllers
         }
 
 
-        // =====================================================
-        // DOWNLOAD ASSIGNMENT
-        // =====================================================
-
+        //download assignment
         [HttpGet]
         public async Task<IActionResult> DownloadAssignment(int sid)
         {
@@ -80,9 +72,7 @@ namespace LearningPlatformRepoPattern.Controllers
         }
 
 
-        // =====================================================
-        // SUBMIT ASSIGNMENT
-        // =====================================================
+        //submit assignment
 
         [HttpPost]
         public async Task<IActionResult> SubmitAssignment(
@@ -114,10 +104,7 @@ namespace LearningPlatformRepoPattern.Controllers
         }
 
 
-        // =====================================================
-        // SUBMIT MCQ
-        // =====================================================
-
+        //submit mcq
         [HttpPost]
         public async Task<IActionResult> SubmitMcq(
             int sid,
@@ -125,27 +112,14 @@ namespace LearningPlatformRepoPattern.Controllers
             int tid,
             List<string> answers)
         {
-            var result =
-                await _service.SubmitMcq(
-                    sid,
-                    userId,
-                    tid,
-                    answers);
+            var result =await _service.SubmitMcq(sid,userId,tid,answers);
 
-            TempData["McqMessage"] =
-                result.Message;
+            TempData["McqMessage"] =result.Message;
+            TempData["McqScore"] =result.Score;
+            TempData["McqTotal"] =result.Total;
+            TempData["McqPassed"] =result.Passed;
 
-            TempData["McqScore"] =
-                result.Score;
-
-            TempData["McqTotal"] =
-                result.Total;
-
-            TempData["McqPassed"] =
-                result.Passed;
-
-            return RedirectToAction(
-                nameof(WatchVideo),
+            return RedirectToAction(nameof(WatchVideo),
                 new
                 {
                     sid = sid,
@@ -155,20 +129,11 @@ namespace LearningPlatformRepoPattern.Controllers
         }
 
 
-        // =====================================================
-        // CERTIFICATE
-        // =====================================================
-
+        //certificate
         [HttpGet]
-        public async Task<IActionResult> Certificate(
-    int sid,
-    int userId)
+        public async Task<IActionResult> Certificate(int sid,int userId)
         {
-            var model =
-                await _service.GetCertificate(
-                    sid,
-                    userId);
-
+            var model =await _service.GetCertificate(sid,userId);
             if (model == null)
             {
                 return NotFound(
@@ -176,9 +141,7 @@ namespace LearningPlatformRepoPattern.Controllers
                     "Please make sure all topics are completed.");
             }
 
-            return PartialView(
-                "_Certificate",
-                model);
+            return PartialView("_Certificate",model);
         }
     }
 }

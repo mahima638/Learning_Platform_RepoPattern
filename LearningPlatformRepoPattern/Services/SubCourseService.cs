@@ -13,7 +13,7 @@ namespace LearningPlatformRepoPattern.Services
         {
             _context = context;
         }
-        public string Add(SubCourse subCourse)
+        public string Add(SubCourse subCourse, string createdBy)
         {
             bool alreadyExists = _context.SubCourses.Any(s =>
                 s.MasterCourseId == subCourse.MasterCourseId &&

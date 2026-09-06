@@ -40,6 +40,7 @@ namespace LearningPlatformRepoPattern.Controllers
             if (model.UserEmail == "admin@gmail.com" && model.Password == "Admin@123")
             {
                 HttpContext.Session.SetString("Role", "Admin");
+                HttpContext.Session.SetString("DisplayName", "Admin");
 
                 return RedirectToAction("Dashboard", "Admin");
             }

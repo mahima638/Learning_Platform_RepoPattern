@@ -15,7 +15,7 @@ namespace LearningPlatformRepoPattern.Services
             _context = context;
         }
 
-       //my courses
+        //my courses
         public async Task<List<MyCourseViewModel>> GetMyCourses(int userId)
         {
             var myCourses = await _context.MyCourses
@@ -28,7 +28,7 @@ namespace LearningPlatformRepoPattern.Services
             {
                 Sid = x.SubCourse.Id,
                 UserId = x.UserId,
-                Sname = x.SubCourse.SubCourseName,
+                SubCourseName = x.SubCourse.SubCourseName,
                 Sstatus = x.SubCourse.Status,
                 Samount = x.SubCourse.Amount,
                 Mname = x.SubCourse.MasterCourse.CourseName,
@@ -38,11 +38,8 @@ namespace LearningPlatformRepoPattern.Services
             return courses;
         }
 
-        // =====================================================
         // WATCH VIDEO
-        // =====================================================
-
-        public async Task<WatchVideoViewModel> GetWatchVideo(int sid,int userId,int? tid)
+        public async Task<WatchVideoViewModel> GetWatchVideo(int sid, int userId, int? tid)
         {
             // Get Sub Course
             var subCourse = await _context.SubCourses
@@ -86,12 +83,14 @@ namespace LearningPlatformRepoPattern.Services
             for (int i = 0; i < topics.Count; i++)
             {
                 var topic = topics[i];
+
                 var currentProgress = progress.FirstOrDefault(
                     x => x.Tid == topic.Id);
 
                 bool isCompleted =
                     currentProgress != null &&
                     currentProgress.McqPassed;
+
                 bool isUnlocked;
 
                 // First topic is always unlocked
@@ -119,7 +118,7 @@ namespace LearningPlatformRepoPattern.Services
                 });
             }
 
-           //select Current topic
+            //select Current topic
             int currentTopicId;
 
             if (tid.HasValue)
@@ -143,14 +142,13 @@ namespace LearningPlatformRepoPattern.Services
                     .Id;
             }
 
-           //get materil
+            //get material
             var material = await _context.Materials
                 .FirstOrDefaultAsync(x =>
                     x.SubCourseId == sid &&
                     x.TopicId == currentTopicId);
 
             //Get mcq
-
             var mcqs = new List<Mcq>();
 
             if (material != null)
@@ -162,35 +160,17 @@ namespace LearningPlatformRepoPattern.Services
                     .ToListAsync();
             }
 
-           // certificate check
+            // certificate check
             bool certificateUnlocked =
                 topicItems.Count > 0 &&
                 topicItems.All(x => x.IsCompleted);
 
-           //view model
+            //view model
             var model = new WatchVideoViewModel
             {
                 Sid = sid,
                 UserId = userId,
                 CurrentTopicId = currentTopicId,
-
-<<<<<<< HEAD
-            // Create ViewModel
-            var model =
-                new WatchVideoViewModel
-                {
-                    Sid = sid,
-                    UserId = userId,
-                    CurrentTopicId = currentTopicId,
-                    SubCourseName = subCourse.SubCourseName,
-                    CourseName = masterCourse.CourseName,
-                    Mthumbnail = masterCourse.ThumbnailPath,
-                    TopicItems = topicItems,
-                    Mcqs = mcqs,
-                    CertificateUnlocked =
-                        certificateUnlocked
-                };
-=======
                 Sname = subCourse.SubCourseName,
                 Mname = masterCourse.CourseName,
                 Mthumbnail = masterCourse.ThumbnailPath,
@@ -200,12 +180,11 @@ namespace LearningPlatformRepoPattern.Services
 
                 CertificateUnlocked = certificateUnlocked
             };
->>>>>>> origin/main
 
             return model;
         }
 
-       //assignment download
+        //assignment download
         public async Task<(byte[] FileBytes, string FileName)>
             DownloadAssignment(int sid)
         {
@@ -239,7 +218,7 @@ namespace LearningPlatformRepoPattern.Services
             return (fileBytes, fileName);
         }
 
-       //submit assignment
+        //submit assignment
         public async Task<bool> SubmitAssignment(
             IFormFile assignmentFile)
         {
@@ -309,7 +288,7 @@ namespace LearningPlatformRepoPattern.Services
             int topicIndex = topics.FindIndex(
                 x => x.Id == tid);
 
-           //check previous topic
+            //check previous topic
             if (topicIndex > 0)
             {
                 int previousTopicId =
@@ -334,7 +313,6 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             //Get material
-
             var material = await _context.Materials
                 .FirstOrDefaultAsync(x =>
                     x.SubCourseId == sid &&
@@ -350,7 +328,7 @@ namespace LearningPlatformRepoPattern.Services
                 );
             }
 
-           //get mcq
+            //get mcq
             var mcqs = await _context.Mcqs
                 .Where(x => x.MaterialId == material.Id)
                 .OrderBy(x => x.Id)
@@ -391,7 +369,6 @@ namespace LearningPlatformRepoPattern.Services
                 mcqs.Count == 3;
 
             //save progress
-
             if (passed)
             {
                 var existingProgress =
@@ -452,7 +429,6 @@ namespace LearningPlatformRepoPattern.Services
         }
 
         //certificate
-
         public async Task<CertificateViewModel>
             GetCertificate(
                 int sid,
@@ -523,7 +499,6 @@ namespace LearningPlatformRepoPattern.Services
             }
 
             //create certificate
-
             var model = new CertificateViewModel
             {
                 UserName = user.UserName,

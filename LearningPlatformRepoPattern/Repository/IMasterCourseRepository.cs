@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
-namespace LearningPlatformRepoPattern.Interfaces
+namespace LearningPlatformRepoPattern.Repository
 {
-    public interface IMasterCourseService
+    public interface IMasterCourseRepository
     {
         List<MasterCourse> GetAll();
         MasterCourse GetById(int id);

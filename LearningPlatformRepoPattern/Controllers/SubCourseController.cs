@@ -1,5 +1,4 @@
-﻿using LearningPlatformRepoPattern.Interfaces;
-using LearningPlatformRepoPattern.Models;
+﻿using LearningPlatformRepoPattern.Models;
 using LearningPlatformRepoPattern.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,10 +7,10 @@ namespace LearningPlatformRepoPattern.Controllers
 {
     public class SubCourseController : Controller
     {
-        private readonly ISubCourseService _service;
-        private readonly IMasterCourseService _masterCourseService;
+        private readonly ISubCourseRepository _service;
+        private readonly IMasterCourseRepository _masterCourseService;
 
-        public SubCourseController(ISubCourseService service, IMasterCourseService masterCourseService)
+        public SubCourseController(ISubCourseRepository service, IMasterCourseRepository masterCourseService)
         {
             _service = service;
             _masterCourseService = masterCourseService;
@@ -31,7 +30,8 @@ namespace LearningPlatformRepoPattern.Controllers
         [HttpPost]
         public IActionResult Add(SubCourse model)
         {
-            string message = _service.Add(model);
+            string username = HttpContext.Session.GetString("DisplayName") ?? "System";
+            string message = _service.Add(model, username);
             TempData["Message"] = message;
             return RedirectToAction("Index");
         }

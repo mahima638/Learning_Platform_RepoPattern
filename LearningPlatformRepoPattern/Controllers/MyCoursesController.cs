@@ -15,26 +15,26 @@ namespace LearningPlatformRepoPattern.Controllers
         }
 
         //My courses
-        public async Task<IActionResult> Index(int userId)
+        public async Task<IActionResult> Index()
         {
-            var courses = await _service.GetMyCourses(userId);
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var courses = await _service.GetMyCourses(userId.Value);
 
             return View(courses);
         }
 
-
-       // watch video
+        // watch video
 
         [HttpGet]
-        public async Task<IActionResult> WatchVideo(
-            int sid,
-            int userId,
-            int? tid)
+        public async Task<IActionResult> WatchVideo(int sid,int userId,int? tid)
         {
-            var model = await _service.GetWatchVideo(
-                sid,
-                userId,
-                tid);
+            var model = await _service.GetWatchVideo(sid,userId,tid);
 
             if (model == null)
             {
@@ -49,26 +49,20 @@ namespace LearningPlatformRepoPattern.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadAssignment(int sid)
         {
-            var result =
-                await _service.DownloadAssignment(sid);
+            var result =await _service.DownloadAssignment(sid);
 
             if (result.FileBytes == null)
             {
-                TempData["Message"] =
-                    "Assignment is not available.";
+                TempData["Message"] ="Assignment is not available.";
 
-                return RedirectToAction(
-                    nameof(WatchVideo),
+                return RedirectToAction(nameof(WatchVideo),
                     new
                     {
                         sid = sid
                     });
             }
 
-            return File(
-                result.FileBytes,
-                "application/octet-stream",
-                result.FileName);
+            return File(result.FileBytes,"application/octet-stream",result.FileName);
         }
 
 
@@ -79,19 +73,15 @@ namespace LearningPlatformRepoPattern.Controllers
             int sid,
             IFormFile assignmentFile)
         {
-            var result =
-                await _service.SubmitAssignment(
-                    assignmentFile);
+            var result =await _service.SubmitAssignment(assignmentFile);
 
             if (result)
             {
-                TempData["Message"] =
-                    "Assignment submitted successfully.";
+                TempData["Message"] ="Assignment submitted successfully.";
             }
             else
             {
-                TempData["Message"] =
-                    "Please select a valid file.";
+                TempData["Message"] ="Please select a valid file.";
             }
 
             return RedirectToAction(
@@ -106,10 +96,7 @@ namespace LearningPlatformRepoPattern.Controllers
 
         //submit mcq
         [HttpPost]
-        public async Task<IActionResult> SubmitMcq(
-            int sid,
-            int userId,
-            int tid,
+        public async Task<IActionResult> SubmitMcq(int sid,int userId,int tid,
             List<string> answers)
         {
             var result =await _service.SubmitMcq(sid,userId,tid,answers);
